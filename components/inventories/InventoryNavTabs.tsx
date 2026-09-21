@@ -61,7 +61,7 @@ export default function InventoryNavTabs({ inventoryId }: { inventoryId: string 
   ];
 
   return (
-    <div className="flex gap-1.5 overflow-x-auto rounded-2xl bg-stone-100/90 p-1.5 text-sm w-fit border border-stone-200/60 shadow-xs mb-8">
+    <div className="flex gap-1.5 overflow-x-auto rounded-2xl bg-white/95 backdrop-blur-md p-1.5 text-sm w-fit border border-emerald-900/10 shadow-[0_2px_12px_-2px_rgba(26,121,73,0.08)] mb-8">
       {tabs.map((tab) => {
         const isActive = tab.exact
           ? pathname === tab.href
@@ -71,16 +71,19 @@ export default function InventoryNavTabs({ inventoryId }: { inventoryId: string 
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 font-semibold text-xs transition-all duration-200 ${
+            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 font-semibold text-xs transition-all duration-200 cursor-pointer ${
               isActive
-                ? "bg-white text-[#1a7949] shadow-sm font-bold border border-stone-200/50"
-                : "text-stone-500 hover:text-stone-900 hover:bg-white/60"
+                ? "bg-gradient-to-r from-emerald-50 via-[#eef8f2] to-[#e4f6eb] text-[#145a37] font-extrabold border border-emerald-300/80 shadow-xs ring-1 ring-emerald-500/20"
+                : "text-stone-600 hover:text-[#1a7949] hover:bg-emerald-50/50 hover:border-emerald-200/50 border border-transparent"
             }`}
           >
-            <span className={isActive ? "text-[#1a7949]" : "text-stone-400"}>
+            <span className={isActive ? "text-[#1a7949] scale-105" : "text-stone-400"}>
               {tab.icon}
             </span>
             <span>{tab.label}</span>
+            {isActive && (
+              <span className="h-1.5 w-1.5 rounded-full bg-[#1a7949] animate-pulse-glow ml-0.5" />
+            )}
           </Link>
         );
       })}

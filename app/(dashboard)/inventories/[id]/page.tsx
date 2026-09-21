@@ -80,70 +80,97 @@ export default async function InventoryOverviewPage({
       </div>
 
       {/* Quick Operations Strip */}
-      <div className="card p-6 border-stone-200/90 shadow-sm bg-gradient-to-r from-white via-white to-[#f4faf6]">
-        <h3 className="font-bold text-stone-900 text-base mb-1">Quick Actions</h3>
-        <p className="text-xs text-stone-500 mb-5">Frequently accessed store operations.</p>
+      <div className="card p-6 border-emerald-200/80 shadow-[0_8px_30px_-6px_rgba(26,121,73,0.08)] bg-gradient-to-br from-white via-[#f8fbf9] to-[#eef8f2] relative overflow-hidden">
+        {/* Subtle decorative background pattern */}
+        <div className="pointer-events-none absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-emerald-100/50 blur-2xl" />
 
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href={`/inventories/${id}/products`}
-            className="btn btn-primary shadow-sm"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            <span>Manage Products</span>
-          </Link>
-          <Link
-            href={`/inventories/${id}/products/export`}
-            className="btn btn-secondary shadow-xs"
-          >
-            <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            <span>Print Price List</span>
-          </Link>
-          <Link
-            href={`/inventories/${id}/categories`}
-            className="btn btn-secondary shadow-xs"
-          >
-            <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Organize Categories</span>
-          </Link>
-          <Link
-            href={`/inventories/${id}/settings`}
-            className="btn btn-ghost"
-          >
-            <svg className="w-4 h-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            <span>Invite Team Member</span>
-          </Link>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="font-black text-stone-900 text-base font-heading">Quick Operations Hub</h3>
+              <p className="text-xs text-stone-500 font-medium">Frequently accessed retail tools and catalog exports.</p>
+            </div>
+            <Link
+              href={`/price-list/${id}`}
+              target="_blank"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-white/90 px-3 py-1.5 text-xs font-bold text-[#145a37] shadow-2xs hover:bg-emerald-50 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5 text-[#1a7949]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              <span>View Customer Menu ↗</span>
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap gap-2.5">
+            <Link
+              href={`/inventories/${id}/products`}
+              className="btn btn-primary btn-shimmer shadow-md"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <span>Manage Products</span>
+            </Link>
+            <Link
+              href={`/inventories/${id}/products/export`}
+              className="btn btn-secondary shadow-xs hover:border-emerald-300 hover:text-[#1a7949]"
+            >
+              <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span>Print 5-Page PDF</span>
+            </Link>
+            <Link
+              href={`/inventories/${id}/categories`}
+              className="btn btn-secondary shadow-xs hover:border-emerald-300 hover:text-[#1a7949]"
+            >
+              <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span>Categories</span>
+            </Link>
+            <Link
+              href={`/price-list/${id}`}
+              target="_blank"
+              className="btn btn-secondary shadow-xs sm:hidden hover:border-emerald-300 hover:text-[#1a7949]"
+            >
+              <span>Customer Menu ↗</span>
+            </Link>
+            <Link
+              href={`/inventories/${id}/settings`}
+              className="btn btn-ghost hover:bg-emerald-50 hover:text-[#1a7949]"
+            >
+              <svg className="w-4 h-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              <span>Invite Staff</span>
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Inventory Health Alert Banner */}
       {(missingPrice > 0 || lowStock > 0) && (
-        <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 to-amber-50/30 p-5 shadow-xs flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
+        <div className="rounded-2xl border border-amber-300/80 bg-gradient-to-r from-amber-50/95 via-amber-50/60 to-amber-100/20 p-5 shadow-xs flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800 shadow-2xs">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div>
-            <h4 className="font-bold text-amber-900 text-sm">Store Catalog Attention Required</h4>
-            <p className="mt-1 text-xs text-amber-800 leading-relaxed">
+            <h4 className="font-extrabold text-amber-950 text-sm font-heading">Store Catalog Attention Required</h4>
+            <p className="mt-1 text-xs text-amber-900 leading-relaxed font-medium">
               {missingPrice > 0 && `${missingPrice} item${missingPrice === 1 ? "" : "s"} have no selling price set. `}
               {lowStock > 0 && `${lowStock} item${lowStock === 1 ? "" : "s"} are low or out of stock (≤ 5 units).`}
             </p>
             <div className="mt-3">
               <Link
                 href={`/inventories/${id}/products`}
-                className="text-xs font-bold text-amber-900 underline hover:text-amber-950"
+                className="text-xs font-black text-amber-900 hover:text-[#1a7949] transition-colors inline-flex items-center gap-1"
               >
-                Review items in Products tab &rarr;
+                <span>Fix items in Products catalog</span>
+                <span>&rarr;</span>
               </Link>
             </div>
           </div>
@@ -172,23 +199,33 @@ function StatCard({
     tone === "danger"
       ? "text-[#782d2d]"
       : tone === "warning"
-      ? "text-amber-700"
-      : "text-stone-900";
+      ? "text-amber-800"
+      : "text-[#145a37]";
+
+  const borderAccent =
+    tone === "danger"
+      ? "from-[#782d2d] to-red-400"
+      : tone === "warning"
+      ? "from-amber-600 to-amber-300"
+      : "from-[#145a37] via-[#1a7949] to-[#2ecc71]";
 
   return (
-    <div className="card p-5 border-stone-200/80 hover:border-[#b7dec2] transition-all relative overflow-hidden group">
+    <div className="card p-5 border-emerald-900/10 hover:border-emerald-300 transition-all relative overflow-hidden group shadow-[0_4px_20px_-4px_rgba(22,29,38,0.04)] hover:shadow-[0_12px_28px_-6px_rgba(26,121,73,0.12)] bg-white">
+      {/* Top Tone Accent Bar */}
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${borderAccent}`} />
+
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-bold tracking-wide uppercase text-stone-400">
+        <span className="text-[11px] font-black tracking-wider uppercase text-stone-400 font-heading">
           {label}
         </span>
-        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${iconBg} transition-transform group-hover:scale-110`}>
+        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${iconBg} transition-transform group-hover:scale-110 shadow-2xs`}>
           {icon}
         </div>
       </div>
-      <p className={`text-2xl sm:text-3xl font-black tracking-tight font-sans ${valueColor}`}>
+      <p className={`text-2xl sm:text-3xl font-black tracking-tight font-heading ${valueColor}`}>
         {value}
       </p>
-      <p className="mt-1.5 text-[11px] font-medium text-stone-400">
+      <p className="mt-1.5 text-[11px] font-bold text-stone-400">
         {subtext}
       </p>
     </div>

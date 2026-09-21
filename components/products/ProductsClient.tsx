@@ -63,34 +63,34 @@ export default function ProductsClient({
     <div className="space-y-5 animate-fade-in">
       {/* Top Header & View Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-1.5 rounded-2xl bg-stone-100/90 p-1.5 text-xs font-bold border border-stone-200/60 shadow-xs w-fit">
+        <div className="flex items-center gap-1.5 rounded-2xl bg-white/90 p-1.5 text-xs font-bold border border-emerald-900/10 shadow-2xs w-fit">
           <button
             onClick={() => setView("active")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 transition-all duration-200 ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 transition-all duration-200 cursor-pointer ${
               view === "active"
-                ? "bg-white text-stone-900 shadow-sm border border-stone-200/50"
+                ? "bg-gradient-to-r from-emerald-50 via-[#f0f8f3] to-emerald-100/60 text-[#145a37] shadow-xs border border-emerald-300/80 font-black"
                 : "text-stone-500 hover:text-stone-800"
             }`}
           >
             <span>Active Products</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-              view === "active" ? "bg-[#eaf6ee] text-[#1a7949]" : "bg-stone-200 text-stone-600"
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono font-bold ${
+              view === "active" ? "bg-[#1a7949] text-white" : "bg-stone-200 text-stone-600"
             }`}>
               {activeCount}
             </span>
           </button>
           <button
             onClick={() => setView("archived")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 transition-all duration-200 ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 transition-all duration-200 cursor-pointer ${
               view === "archived"
-                ? "bg-white text-stone-900 shadow-sm border border-stone-200/50"
+                ? "bg-stone-900 text-white shadow-xs font-black"
                 : "text-stone-500 hover:text-stone-800"
             }`}
           >
             <span>Archived</span>
             {archivedCount > 0 && (
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-                view === "archived" ? "bg-stone-800 text-white" : "bg-stone-200 text-stone-600"
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono font-bold ${
+                view === "archived" ? "bg-stone-700 text-white" : "bg-stone-200 text-stone-600"
               }`}>
                 {archivedCount}
               </span>
@@ -98,7 +98,7 @@ export default function ProductsClient({
           </button>
         </div>
 
-        <button onClick={openAdd} className="btn btn-primary self-start sm:self-auto">
+        <button onClick={openAdd} className="btn btn-primary btn-shimmer self-start sm:self-auto shadow-md">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
@@ -118,7 +118,7 @@ export default function ProductsClient({
             placeholder="Search by product name or brand..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="input pl-9 text-sm"
+            className="input pl-9 text-sm font-medium"
           />
           {query && (
             <button
@@ -136,7 +136,7 @@ export default function ProductsClient({
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="input text-sm cursor-pointer pr-8 font-medium"
+            className="input text-sm cursor-pointer pr-8 font-semibold text-stone-700"
           >
             <option value="">All Categories ({categories.length})</option>
             {categories.map((c) => (
@@ -147,17 +147,17 @@ export default function ProductsClient({
           </select>
         </div>
 
-        <div className="hidden lg:flex items-center text-xs font-semibold text-stone-400 ml-auto">
+        <div className="hidden lg:flex items-center text-xs font-bold text-stone-400 ml-auto">
           Showing {filtered.length} of {view === "active" ? activeCount : archivedCount} items
         </div>
       </div>
 
       {/* Luxury Products Table */}
-      <div className="card overflow-hidden border-stone-200/90 shadow-sm bg-white">
+      <div className="card overflow-hidden border-emerald-900/10 shadow-[0_8px_30px_-6px_rgba(26,121,73,0.06)] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-stone-100 bg-[#fbfcfb] text-[11px] font-black uppercase tracking-wider text-stone-400">
+              <tr className="border-b border-emerald-900/10 bg-gradient-to-r from-[#eef7f2] via-[#f7faf8] to-white text-[11px] font-black uppercase tracking-wider text-[#145a37] font-heading">
                 <th className="px-5 py-3.5">Product Name</th>
                 <th className="px-4 py-3.5">Brand</th>
                 <th className="px-4 py-3.5">Size / Unit</th>
@@ -174,7 +174,7 @@ export default function ProductsClient({
                 filtered.map((p) => (
                   <tr
                     key={p.id}
-                    className="text-stone-800 transition-colors duration-150 hover:bg-[#f8faf8] group"
+                    className="text-stone-800 transition-colors duration-150 hover:bg-[#f3f9f5] group"
                   >
                     {/* Name */}
                     <td className="px-5 py-3.5">
