@@ -154,7 +154,7 @@ export default function ProductForm({
 
           {noSellingPrice && (
             <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              No selling price yet — this product will show as "TBD" until you set one.
+              No selling price yet &mdash; this product will show as &quot;TBD&quot; until you set one.
             </p>
           )}
 

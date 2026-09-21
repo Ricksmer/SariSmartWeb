@@ -36,10 +36,28 @@ create table public.inventory_members (
 -- ─────────────────────────────────────────────────────────────
 alter table public.inventories enable row level security;
 
+-- Helper function with SECURITY DEFINER to check membership without recursive RLS
+create or replace function public.is_inventory_member(p_inventory_id uuid, p_user_id uuid default auth.uid())
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1
+    from public.inventory_members
+    where inventory_id = p_inventory_id
+      and user_id = p_user_id
+  );
+$$;
+
+grant execute on function public.is_inventory_member(uuid, uuid) to authenticated, anon;
+
 create policy "members can view their inventories"
   on public.inventories for select
   using (
-    id in (select inventory_id from public.inventory_members where user_id = auth.uid())
+    public.is_inventory_member(id)
   );
 
 create policy "owner can rename their inventory"
@@ -55,9 +73,7 @@ alter table public.inventory_members enable row level security;
 create policy "members can view co-members of their inventories"
   on public.inventory_members for select
   using (
-    inventory_id in (
-      select im.inventory_id from public.inventory_members im where im.user_id = auth.uid()
-    )
+    user_id = auth.uid() or public.is_inventory_member(inventory_id)
   );
 
 create policy "a member can remove themselves"
@@ -122,13 +138,13 @@ alter table public.products drop column if exists user_id;
 
 create policy "members can manage categories in their inventories"
   on public.categories for all
-  using (inventory_id in (select inventory_id from public.inventory_members where user_id = auth.uid()))
-  with check (inventory_id in (select inventory_id from public.inventory_members where user_id = auth.uid()));
+  using (public.is_inventory_member(inventory_id))
+  with check (public.is_inventory_member(inventory_id));
 
 create policy "members can manage products in their inventories"
   on public.products for all
-  using (inventory_id in (select inventory_id from public.inventory_members where user_id = auth.uid()))
-  with check (inventory_id in (select inventory_id from public.inventory_members where user_id = auth.uid()));
+  using (public.is_inventory_member(inventory_id))
+  with check (public.is_inventory_member(inventory_id));
 
 drop index if exists products_user_id_idx;
 create index if not exists products_inventory_id_idx on public.products (inventory_id);

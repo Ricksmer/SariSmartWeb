@@ -44,7 +44,11 @@ export default function ExportSelector({
   function toggleCategory(id: string) {
     setSelectedCategories((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   }
@@ -52,7 +56,11 @@ export default function ExportSelector({
   function toggleItem(id: string) {
     setSelectedItems((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   }
@@ -170,7 +178,7 @@ export default function ExportSelector({
         </p>
         {missingPriceCount > 0 && (
           <p className="mt-1 text-xs text-amber-700">
-            {missingPriceCount} of these have no selling price yet — they'll print as "TBD".
+            {missingPriceCount} of these have no selling price yet &mdash; they&apos;ll print as &quot;TBD&quot;.
           </p>
         )}
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}

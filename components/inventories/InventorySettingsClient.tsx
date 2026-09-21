@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { renameInventory, leaveInventory } from "@/app/(dashboard)/actions";
 
 type Member = {
@@ -22,7 +21,6 @@ export default function InventorySettingsClient({
   currentUserId: string;
   isOwner: boolean;
 }) {
-  const router = useRouter();
   const [name, setName] = useState(inventory.name);
   const [saving, setSaving] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -157,7 +155,7 @@ export default function InventorySettingsClient({
         <section className="card p-5">
           <h2 className="mb-2 font-semibold text-stone-900">Leave inventory</h2>
           <p className="mb-4 text-sm text-stone-500">
-            You'll lose access unless someone invites you back.
+            You&apos;ll lose access unless someone invites you back.
           </p>
           <button onClick={handleLeave} className="btn btn-danger">
             Leave this inventory

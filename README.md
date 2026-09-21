@@ -17,6 +17,7 @@ Inventory management for sari-sari stores, shared across multiple users via inve
 1. [supabase.com](https://supabase.com) → New project
 2. SQL Editor → run `supabase/migrations/0001_init.sql`, then `supabase/migrations/0002_inventories.sql` **in that order**
    - `0002` is **non-destructive**: if you already have products/categories from `0001`, it automatically creates a personal inventory for each existing user and migrates their data into it. Nothing is dropped.
+   - If you previously ran an earlier version of `0002` and ran into an RLS recursion error, run `supabase/migrations/0003_fix_rls_recursion.sql` in the SQL Editor to apply the fix.
 3. Authentication → Providers → Email → make sure "Allow new users to sign up" is on
 4. Project Settings → API (or the "Legacy anon, service_role API keys" tab if you're on the new key system) → copy the **Project URL**, **anon/public** key, and **service_role** key
 

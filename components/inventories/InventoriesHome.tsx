@@ -89,7 +89,9 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
       {panel === "create" && (
         <form onSubmit={handleCreate} className="card mb-8 max-w-md p-5">
           <label className="mb-1 block text-sm font-medium text-stone-700">Inventory name</label>
-          <p className="mb-3 text-xs text-stone-500">e.g. "Aling Nena's Store", "Main Branch"</p>
+          <p className="mb-3 text-xs text-stone-500">
+            e.g. &ldquo;Aling Nena&apos;s Store&rdquo;, &ldquo;Main Branch&rdquo;
+          </p>
           <div className="flex gap-2">
             <input
               value={name}
@@ -132,7 +134,7 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
       {inventories.length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-16 text-center">
           <p className="text-sm text-stone-500">
-            You don't have any inventories yet — create one or join with a code to get started.
+            You don&apos;t have any inventories yet &mdash; create one or join with a code to get started.
           </p>
         </div>
       ) : (
