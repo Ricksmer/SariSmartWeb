@@ -37,7 +37,7 @@ export default function AICopilotDrawer({ inventoryId }: { inventoryId: string }
     {
       id: "welcome",
       sender: "ai",
-      text: "Kumusta! I am your **SariSmart AI Copilot**. You can ask me to check stock, update prices, add new items, delete or archive products, and format units using natural language.",
+      text: "Kumusta! I am your **SariSmart AI Assistant**. You can ask me to check stock levels, update selling prices, add items, archive products, and organize units using simple everyday words.",
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -120,17 +120,17 @@ export default function AICopilotDrawer({ inventoryId }: { inventoryId: string }
 
   return (
     <>
-      {/* Floating Launcher Button */}
+      {/* Floating Launcher Button (Firmly fixed on screen lower-right) */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#0f472b] via-[#1a7949] to-[#2ecc71] px-5 py-3.5 text-white shadow-[0_8px_30px_rgb(26,121,73,0.35)] transition-all duration-300 hover:scale-105 hover:shadow-[0_12px_40px_rgb(26,121,73,0.5)] active:scale-95 cursor-pointer font-heading"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#0a3520] via-[#145b34] to-[#1a7949] px-5 py-3.5 text-white shadow-[0_10px_35px_rgba(26,121,73,0.45)] border-2 border-emerald-300/60 ring-4 ring-emerald-500/20 transition-all duration-300 hover:scale-105 hover:shadow-[0_14px_45px_rgba(26,121,73,0.6)] active:scale-95 cursor-pointer font-heading"
         title="Open SariSmart AI Assistant"
       >
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
           ✦
         </span>
-        <span className="font-extrabold text-sm tracking-wide">AI Copilot</span>
-        <span className="flex h-2 w-2 rounded-full bg-emerald-300 animate-pulse-glow" />
+        <span className="font-extrabold text-sm tracking-wide">AI Store Assistant</span>
+        <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-300 animate-pulse-glow" />
       </button>
 
       {/* Slide-Over Drawer */}
@@ -152,12 +152,12 @@ export default function AICopilotDrawer({ inventoryId }: { inventoryId: string }
                 </div>
                 <div>
                   <h3 className="font-black text-white text-base font-heading flex items-center gap-2">
-                    SariSmart Copilot
+                    SariSmart Assistant
                     <span className="text-[10px] uppercase font-bold tracking-wider bg-emerald-400/25 text-emerald-200 px-2 py-0.5 rounded-full">
-                      AI CRUD
+                      Store AI
                     </span>
                   </h3>
-                  <p className="text-[11px] text-emerald-100 font-medium">Natural language store operations</p>
+                  <p className="text-[11px] text-emerald-100 font-medium">Manage stocks, prices &amp; items with simple words</p>
                 </div>
               </div>
               <button
@@ -210,7 +210,7 @@ export default function AICopilotDrawer({ inventoryId }: { inventoryId: string }
               {loading && (
                 <div className="flex items-center gap-2 text-xs font-bold text-[#1a7949] bg-emerald-50 border border-emerald-200/80 px-3.5 py-2 rounded-2xl w-fit shadow-2xs animate-pulse-glow">
                   <span className="flex h-2 w-2 rounded-full bg-[#1a7949] animate-ping" />
-                  <span>Processing natural language command...</span>
+                  <span>Updating store catalog...</span>
                 </div>
               )}
               <div ref={messagesEndRef} />

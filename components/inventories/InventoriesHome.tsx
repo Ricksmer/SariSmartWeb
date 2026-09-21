@@ -84,49 +84,53 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
 
   return (
     <div className="space-y-10 animate-fade-in pb-12">
-      {/* Hero Title & Actions Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-emerald-900/10 pb-6">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-stone-900 font-heading">
+      {/* Rich Emerald Hero Banner */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#082a17] via-[#104b2b] to-[#1a7949] p-6 sm:p-8 text-white relative overflow-hidden shadow-lg border border-emerald-700/30">
+        <div className="pointer-events-none absolute inset-0 bg-stripes-emerald-dark opacity-40" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2.5 mb-2">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-300 animate-pulse-glow" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
+                Multi-Branch Management &bull; {inventories.length} {inventories.length === 1 ? "Active Store" : "Active Stores"}
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white font-heading">
               Store Hub &amp; Inventories
             </h1>
-            <span className="badge badge-mint font-mono font-bold">
-              {inventories.length} {inventories.length === 1 ? "Active Store" : "Active Stores"}
-            </span>
+            <p className="mt-1.5 text-xs sm:text-sm text-emerald-100/90 font-medium max-w-xl">
+              Manage retail branches, switch live product catalogs, print 5-page price lists, and collaborate with staff.
+            </p>
           </div>
-          <p className="mt-1 text-sm text-stone-500 font-medium">
-            Manage your stores, switch catalogs, and control team branch access.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => {
-              setPanel(panel === "join" ? "none" : "join");
-              setError(null);
-            }}
-            className={`btn btn-secondary ${
-              panel === "join" ? "border-[#1a7949] text-[#1a7949] bg-emerald-50/50" : ""
-            }`}
-          >
-            <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Join with Code
-          </button>
-          <button
-            onClick={() => {
-              setPanel(panel === "create" ? "none" : "create");
-              setError(null);
-            }}
-            className="btn btn-primary btn-shimmer"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            New Store
-          </button>
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => {
+                setPanel(panel === "join" ? "none" : "join");
+                setError(null);
+              }}
+              className="btn bg-white/15 text-white hover:bg-white/25 border border-white/25 text-xs sm:text-sm font-bold backdrop-blur-md shadow-xs cursor-pointer"
+            >
+              <svg className="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Join with Code</span>
+            </button>
+            <button
+              onClick={() => {
+                setPanel(panel === "create" ? "none" : "create");
+                setError(null);
+              }}
+              className="btn bg-white text-[#0f472b] hover:bg-emerald-50 hover:text-[#0b3822] text-xs sm:text-sm font-black shadow-md border-0 cursor-pointer"
+            >
+              <svg className="w-4 h-4 text-[#1a7949]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <span>+ New Store</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -206,24 +210,27 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
       <section className="space-y-4">
         <div className="flex items-center justify-between border-b border-stone-200/80 pb-2.5">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-800 text-xs">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-[#1a7949] text-xs font-bold shadow-2xs">
               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.789l1.599.799L9 4.323V3a1 1 0 011-1z" clipRule="evenodd" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-black text-stone-900 font-heading">
-                My Store Inventories
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-black text-stone-900 font-heading">
+                  My Store Inventories
+                </h2>
+                <span className="badge badge-mint font-bold text-xs">
+                  {ownedStores.length} {ownedStores.length === 1 ? "Store" : "Stores"} Owned
+                </span>
+              </div>
               <p className="text-xs text-stone-500 font-medium">
                 Stores where you are the registered owner with full administrative control.
               </p>
             </div>
           </div>
-          <span className="badge badge-mint font-bold text-xs">
-            {ownedStores.length} {ownedStores.length === 1 ? "Store Owned" : "Stores Owned"}
-          </span>
         </div>
+        <div className="green-divider-bar w-20 -mt-2" />
 
         {ownedStores.length === 0 ? (
           <div className="card p-8 text-center border-dashed border-2 border-stone-200 bg-stone-50/50 rounded-2xl">
@@ -234,7 +241,7 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {ownedStores.map((inv) => {
               const isRevealed = revealedIds.has(inv.id);
               const isCopied = copiedId === inv.id;
@@ -343,18 +350,21 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-black text-stone-900 font-heading">
-                Shared Stores &amp; Collaborations
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-black text-stone-900 font-heading">
+                  Shared Stores &amp; Collaborations
+                </h2>
+                <span className="badge badge-slate font-bold text-xs">
+                  {memberStores.length} {memberStores.length === 1 ? "Collaboration" : "Collaborations"}
+                </span>
+              </div>
               <p className="text-xs text-stone-500 font-medium">
                 Stores you have joined as staff or catalog manager using an invite code.
               </p>
             </div>
           </div>
-          <span className="badge badge-slate font-bold text-xs">
-            {memberStores.length} {memberStores.length === 1 ? "Collaboration" : "Collaborations"}
-          </span>
         </div>
+        <div className="green-divider-bar w-20 -mt-2" />
 
         {memberStores.length === 0 ? (
           <div className="card p-6 border border-stone-200/80 bg-gradient-to-r from-stone-50 to-[#f4faf6] rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -376,7 +386,7 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {memberStores.map((inv) => (
               <Link
                 key={inv.id}

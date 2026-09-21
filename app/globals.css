@@ -53,36 +53,68 @@ h1, h2, h3, h4, .font-heading {
 
 /* ── Custom Ambient Backgrounds & Emerald Patterns ─────────── */
 .bg-sari-grid {
-  background-color: #f7faf7;
+  background-color: #f2f8f4;
   background-image: 
-    radial-gradient(rgba(26, 121, 73, 0.11) 1.2px, transparent 1.2px),
-    linear-gradient(to bottom, rgba(238, 247, 242, 0.6) 0%, rgba(248, 250, 248, 0.95) 100%);
-  background-size: 24px 24px, 100% 100%;
+    radial-gradient(rgba(26, 121, 73, 0.16) 1.5px, transparent 1.5px),
+    repeating-linear-gradient(135deg, rgba(26, 121, 73, 0.02) 0px, rgba(26, 121, 73, 0.02) 14px, transparent 14px, transparent 28px),
+    linear-gradient(to bottom, rgba(220, 242, 228, 0.55) 0%, rgba(244, 249, 245, 0.95) 100%);
+  background-size: 24px 24px, 40px 40px, 100% 100%;
+}
+
+.bg-stripes-green {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(26, 121, 73, 0.07),
+    rgba(26, 121, 73, 0.07) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+}
+
+.bg-stripes-emerald-dark {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.06) 12px,
+    transparent 12px,
+    transparent 24px
+  );
+}
+
+.green-divider-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #1a7949 0%, #2ecc71 50%, #b7dec2 100%);
+  border-radius: 9999px;
+}
+
+.green-section-header {
+  background: linear-gradient(135deg, #092e19 0%, #135532 50%, #1a7949 100%);
+  color: #ffffff;
 }
 
 .bg-hero-glow {
   background-image: 
-    radial-gradient(at 10% 15%, rgba(183, 222, 194, 0.4) 0px, transparent 48%),
-    radial-gradient(at 90% 25%, rgba(26, 121, 73, 0.16) 0px, transparent 45%),
-    radial-gradient(at 50% 90%, rgba(183, 222, 194, 0.28) 0px, transparent 55%);
+    radial-gradient(at 10% 15%, rgba(183, 222, 194, 0.5) 0px, transparent 48%),
+    radial-gradient(at 90% 25%, rgba(26, 121, 73, 0.22) 0px, transparent 45%),
+    radial-gradient(at 50% 90%, rgba(183, 222, 194, 0.35) 0px, transparent 55%);
 }
 
 .bg-emerald-surface {
-  background: linear-gradient(145deg, #10472a 0%, #1a7949 60%, #145f39 100%);
+  background: linear-gradient(145deg, #092e19 0%, #145b34 50%, #1a7949 100%);
 }
 
 .bg-mesh-pattern {
   background-image: 
-    radial-gradient(at 15% 15%, rgba(183, 222, 194, 0.38) 0px, transparent 50%),
-    radial-gradient(at 85% 20%, rgba(26, 121, 73, 0.15) 0px, transparent 45%),
-    radial-gradient(at 50% 85%, rgba(183, 222, 194, 0.3) 0px, transparent 50%);
+    radial-gradient(at 15% 15%, rgba(183, 222, 194, 0.45) 0px, transparent 50%),
+    radial-gradient(at 85% 20%, rgba(26, 121, 73, 0.2) 0px, transparent 45%),
+    radial-gradient(at 50% 85%, rgba(183, 222, 194, 0.38) 0px, transparent 50%);
 }
 
 .bg-dark-mesh {
   background-color: #161d26;
   background-image: 
-    radial-gradient(at 20% 20%, rgba(26, 121, 73, 0.25) 0px, transparent 50%),
-    radial-gradient(at 80% 80%, rgba(183, 222, 194, 0.15) 0px, transparent 40%);
+    radial-gradient(at 20% 20%, rgba(26, 121, 73, 0.35) 0px, transparent 50%),
+    radial-gradient(at 80% 80%, rgba(183, 222, 194, 0.2) 0px, transparent 40%);
 }
 
 /* ── Form Inputs ───────────────────────────────────────────── */

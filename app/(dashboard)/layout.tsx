@@ -28,8 +28,8 @@ export default async function DashboardLayout({
       <div className="h-1 bg-gradient-to-r from-[#145a37] via-[#1a7949] to-[#2ecc71] w-full" />
 
       {/* Sticky Premium Header */}
-      <header className="sticky top-0 z-40 border-b border-emerald-900/10 bg-white/90 backdrop-blur-xl transition-all shadow-[0_4px_20px_-4px_rgba(22,29,38,0.03)]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+      <header className="sticky top-0 z-40 border-b border-emerald-900/10 bg-white/95 backdrop-blur-xl transition-all shadow-[0_4px_20px_-4px_rgba(22,29,38,0.03)]">
+        <div className="w-full max-w-[1920px] mx-auto flex items-center justify-between px-6 sm:px-10 lg:px-14 py-3.5">
           <Link href="/" className="group flex items-center transition-transform duration-200 active:scale-98">
             <Logo size="md" variant="full" />
           </Link>
@@ -37,7 +37,7 @@ export default async function DashboardLayout({
           <nav className="flex items-center gap-2 sm:gap-4 text-sm font-semibold">
             <Link
               href="/"
-              className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-stone-700 transition-all hover:bg-emerald-50 hover:text-[#1a7949]"
+              className="flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-stone-700 transition-all hover:bg-emerald-50 hover:text-[#1a7949]"
             >
               <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -47,7 +47,7 @@ export default async function DashboardLayout({
 
             <Link
               href="/profile"
-              className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-stone-700 transition-all hover:bg-emerald-50 hover:text-[#1a7949]"
+              className="flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-stone-700 transition-all hover:bg-emerald-50 hover:text-[#1a7949]"
             >
               <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -61,13 +61,13 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-2">
               <Link
                 href="/profile"
-                className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/60 py-1 pl-1.5 pr-3 text-xs text-stone-800 shadow-xs hover:border-emerald-400 hover:bg-emerald-100/70 transition-all"
+                className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/70 py-1.5 pl-2 pr-3.5 text-xs text-stone-800 shadow-xs hover:border-emerald-400 hover:bg-emerald-100/70 transition-all"
                 title="View Profile & Settings"
               >
                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#1a7949] font-black text-white text-[10px]">
                   {userInitial}
                 </div>
-                <span className="max-w-[130px] truncate font-bold">{user.email}</span>
+                <span className="max-w-[140px] truncate font-bold">{user.email}</span>
               </Link>
 
               <form action={signOut}>
@@ -87,14 +87,14 @@ export default async function DashboardLayout({
         </div>
       </header>
 
-      {/* Main Content Viewport */}
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 flex-1 relative z-10">
+      {/* Main Content Viewport (Full Screen Width) */}
+      <main className="w-full max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-14 py-8 flex-1 relative z-10">
         {children}
       </main>
 
-      {/* Modern Footer */}
+      {/* Modern Footer (Full Screen Width) */}
       <footer className="border-t border-emerald-900/10 bg-white/70 backdrop-blur-md py-6 text-center text-xs text-stone-500">
-        <div className="mx-auto max-w-6xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="w-full max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-14 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="font-medium">SariSmart OS &bull; Retail Intelligence &amp; Margin Telemetry for Sari-Sari Stores</p>
           <p className="text-[11px] text-stone-400 font-mono">100% Encrypted &bull; Multi-Branch</p>
         </div>

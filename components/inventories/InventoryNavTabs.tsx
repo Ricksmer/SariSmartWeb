@@ -73,16 +73,16 @@ export default function InventoryNavTabs({ inventoryId }: { inventoryId: string 
             href={tab.href}
             className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 font-semibold text-xs transition-all duration-200 cursor-pointer ${
               isActive
-                ? "bg-gradient-to-r from-emerald-50 via-[#eef8f2] to-[#e4f6eb] text-[#145a37] font-extrabold border border-emerald-300/80 shadow-xs ring-1 ring-emerald-500/20"
-                : "text-stone-600 hover:text-[#1a7949] hover:bg-emerald-50/50 hover:border-emerald-200/50 border border-transparent"
+                ? "bg-[#1a7949] text-white font-extrabold shadow-md border border-emerald-700"
+                : "text-stone-700 hover:text-[#1a7949] hover:bg-emerald-50/70 hover:border-emerald-200/80 border border-transparent"
             }`}
           >
-            <span className={isActive ? "text-[#1a7949] scale-105" : "text-stone-400"}>
+            <span className={isActive ? "text-emerald-100 scale-105" : "text-stone-400"}>
               {tab.icon}
             </span>
             <span>{tab.label}</span>
             {isActive && (
-              <span className="h-1.5 w-1.5 rounded-full bg-[#1a7949] animate-pulse-glow ml-0.5" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-200 animate-pulse-glow ml-0.5" />
             )}
           </Link>
         );
