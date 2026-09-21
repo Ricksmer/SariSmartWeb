@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { productIds } = (await request.json()) as {
+  const { inventoryId, productIds } = (await request.json()) as {
     inventoryId?: string;
     productIds: string[];
   };
@@ -28,9 +28,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No products selected" }, { status: 400 });
   }
 
+  let storeName = "SariSmart Store";
+  if (inventoryId) {
+    const { data: inv } = await supabase
+      .from("inventories")
+      .select("name")
+      .eq("id", inventoryId)
+      .maybeSingle();
+    if (inv?.name) storeName = inv.name;
+  }
+
   const { data: products, error } = await supabase
     .from("products")
-    .select("name, brand, selling_price, remarks, category:categories(name)")
+    .select("name, brand, unit, selling_price, remarks, category:categories(name)")
     .in("id", productIds);
 
   if (error) {
@@ -40,12 +50,15 @@ export async function POST(request: NextRequest) {
   const rows = (products ?? []).map((p) => ({
     name: p.name,
     brand: p.brand,
+    unit: p.unit,
     selling_price: p.selling_price,
     remarks: p.remarks,
     category_name: (p.category as unknown as { name: string } | null)?.name ?? null,
   }));
 
-  const buffer = await renderToBuffer(<ProductPriceListPDF rows={rows} />);
+  const buffer = await renderToBuffer(
+    <ProductPriceListPDF rows={rows} storeName={storeName} />
+  );
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

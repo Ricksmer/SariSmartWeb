@@ -50,115 +50,184 @@ export default function InventorySettingsClient({
     navigator.clipboard.writeText(text);
     if (which === "code") {
       setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 1500);
+      setTimeout(() => setCopiedCode(false), 1800);
     } else if (which === "link") {
       setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 1500);
+      setTimeout(() => setCopiedLink(false), 1800);
     } else {
       setCopiedPriceList(true);
-      setTimeout(() => setCopiedPriceList(false), 1500);
+      setTimeout(() => setCopiedPriceList(false), 1800);
     }
   }
 
   async function handleLeave() {
-    if (!confirm("Leave this inventory? You'll need the invite code to rejoin.")) return;
+    if (!confirm("Are you sure you want to leave this inventory? You will need an invite code to rejoin.")) return;
     await leaveInventory(inventory.id);
   }
 
   const mailtoHref = `mailto:?subject=${encodeURIComponent(
     `Join "${inventory.name}" on SariSmart`
   )}&body=${encodeURIComponent(
-    `I'd like to invite you to our SariSmart inventory "${inventory.name}".\n\nJoin here: ${joinLink}\n\nOr enter this code manually: ${inventory.invite_code}`
+    `Hello,\n\nYou have been invited to collaborate on our SariSmart store inventory "${inventory.name}".\n\nJoin automatically here: ${joinLink}\n\nOr enter this code manually in your dashboard: ${inventory.invite_code}`
   )}`;
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <section className="card p-5">
-        <h2 className="mb-4 font-semibold text-stone-900">Invite people</h2>
-
-        <div className="grid gap-4 sm:grid-cols-2">
+    <div className="max-w-3xl space-y-6 animate-fade-in">
+      {/* Invite Collaborators Card */}
+      <section className="card p-6 border-stone-200/90 shadow-sm bg-white">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eaf6ee] text-[#1a7949]">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
           <div>
-            <p className="mb-1.5 text-xs font-medium text-stone-500">Inventory code</p>
+            <h2 className="text-base font-bold text-stone-900">Invite &amp; Team Collaboration</h2>
+            <p className="text-xs text-stone-400">Grant store staff access to update stock levels and prices.</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 mt-6">
+          <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-4">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-stone-400">Inventory Code</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-center font-mono text-sm font-semibold tracking-widest text-stone-800">
+              <code className="flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2 text-center font-mono text-sm font-bold tracking-widest text-stone-800 shadow-2xs">
                 {inventory.invite_code}
               </code>
-              <button onClick={() => copy(inventory.invite_code, "code")} className="btn btn-secondary shrink-0">
-                {copiedCode ? "Copied!" : "Copy"}
+              <button
+                onClick={() => copy(inventory.invite_code, "code")}
+                className={`btn shrink-0 ${copiedCode ? "btn-primary" : "btn-secondary"} text-xs py-2`}
+              >
+                {copiedCode ? "✓ Copied!" : "Copy Code"}
               </button>
             </div>
           </div>
 
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-stone-500">Shareable link</p>
+          <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-4">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-stone-400">Direct Join Link</p>
             <div className="flex items-center gap-2">
-              <button onClick={() => copy(joinLink, "link")} className="btn btn-secondary flex-1">
-                {copiedLink ? "Link copied!" : "Copy join link"}
+              <button
+                onClick={() => copy(joinLink, "link")}
+                className={`btn flex-1 ${copiedLink ? "btn-primary" : "btn-secondary"} text-xs py-2`}
+              >
+                {copiedLink ? "✓ Link Copied!" : "Copy Link"}
               </button>
-              <a href={mailtoHref} className="btn btn-secondary shrink-0">
-                Email invite
+              <a
+                href={mailtoHref}
+                className="btn btn-secondary shrink-0 text-xs py-2"
+                title="Email invite to staff"
+              >
+                Email
               </a>
             </div>
           </div>
         </div>
 
-        <p className="mt-3 text-xs text-stone-400">
-          Anyone with this code or link gets full access to add, edit, and remove products in this
-          inventory.
+        <p className="mt-4 text-[11px] text-stone-400 leading-relaxed">
+          Anyone with this code or link has permission to view, add, edit, and update items in this store.
         </p>
       </section>
 
-      <section className="card p-5">
-        <h2 className="mb-4 font-semibold text-stone-900">Public price list</h2>
-        <p className="mb-3 text-xs text-stone-500">
-          A read-only page anyone can open — no login required. Shows only name, brand, and price.
-        </p>
-        <div className="flex gap-2">
-          <button onClick={() => copy(priceListLink, "priceList")} className="btn btn-secondary flex-1">
-            {copiedPriceList ? "Link copied!" : "Copy price list link"}
+      {/* Public Price List Card */}
+      <section className="card p-6 border-stone-200/90 shadow-sm bg-white">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-stone-100 to-stone-200 text-stone-700">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-stone-900">Public Customer Price List</h2>
+            <p className="text-xs text-stone-400">A read-only catalog for customers &mdash; no login required.</p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col sm:flex-row gap-2.5">
+          <input
+            readOnly
+            value={priceListLink}
+            className="input font-mono text-xs bg-stone-50/80 text-stone-600 flex-1"
+          />
+          <button
+            onClick={() => copy(priceListLink, "priceList")}
+            className={`btn ${copiedPriceList ? "btn-primary" : "btn-secondary"} shrink-0 text-xs`}
+          >
+            {copiedPriceList ? "✓ Copied!" : "Copy Customer Link"}
           </button>
-          <a href={priceListLink} target="_blank" rel="noopener noreferrer" className="btn btn-secondary shrink-0">
-            Open
+          <a
+            href={priceListLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary shrink-0 text-xs"
+          >
+            Open Live &rarr;
           </a>
         </div>
       </section>
 
-      <section className="card p-5">
-        <h2 className="mb-4 font-semibold text-stone-900">Members ({members.length})</h2>
+      {/* Member Roster Card */}
+      <section className="card p-6 border-stone-200/90 shadow-sm bg-white">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-bold text-stone-900">Team Members ({members.length})</h2>
+          <span className="badge badge-mint text-xs font-mono">{members.length} Active</span>
+        </div>
+
         <ul className="divide-y divide-stone-100">
           {members.map((m) => (
-            <li key={m.user_id} className="flex items-center justify-between py-2.5 text-sm">
-              <span className="text-stone-700">
-                {m.email}
-                {m.user_id === currentUserId && (
-                  <span className="ml-2 text-xs text-stone-400">(you)</span>
-                )}
+            <li key={m.user_id} className="flex items-center justify-between py-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#eaf6ee] text-[#1a7949] font-bold text-xs">
+                  {m.email.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-stone-800">
+                    {m.email}
+                  </span>
+                  {m.user_id === currentUserId && (
+                    <span className="ml-2 text-[11px] font-medium text-stone-400">(you)</span>
+                  )}
+                  <p className="text-[11px] text-stone-400">Joined {new Date(m.joined_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              <span
+                className={`badge text-xs ${
+                  m.role === "owner" ? "badge-mint" : "badge-slate"
+                }`}
+              >
+                {m.role === "owner" ? "Store Owner" : "Staff Member"}
               </span>
-              {m.role === "owner" && <span className="badge bg-teal-50 text-teal-800">Owner</span>}
             </li>
           ))}
         </ul>
       </section>
 
+      {/* Danger & Administrative Zone */}
       {isOwner ? (
-        <section className="card p-5">
-          <h2 className="mb-4 font-semibold text-stone-900">Rename inventory</h2>
-          <form onSubmit={handleRename} className="flex gap-2">
-            <input value={name} onChange={(e) => setName(e.target.value)} className="input" />
+        <section className="card p-6 border-stone-200/90 shadow-sm bg-white">
+          <h2 className="text-base font-bold text-stone-900 mb-1">Rename Store Inventory</h2>
+          <p className="text-xs text-stone-400 mb-4">Change the display name of this retail location.</p>
+          <form onSubmit={handleRename} className="flex gap-2.5 max-w-md">
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input font-medium"
+              required
+            />
             <button type="submit" disabled={saving} className="btn btn-primary shrink-0">
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "Save Name"}
             </button>
           </form>
-          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-2 text-xs font-semibold text-[#782d2d]">{error}</p>}
         </section>
       ) : (
-        <section className="card p-5">
-          <h2 className="mb-2 font-semibold text-stone-900">Leave inventory</h2>
-          <p className="mb-4 text-sm text-stone-500">
-            You&apos;ll lose access unless someone invites you back.
+        <section className="card p-6 border-red-200/60 bg-red-50/30 shadow-sm">
+          <h2 className="text-base font-bold text-[#782d2d] mb-1">Leave Store Inventory</h2>
+          <p className="text-xs text-stone-500 mb-4">
+            You will forfeit access to this store&apos;s records unless an owner invites you again.
           </p>
           <button onClick={handleLeave} className="btn btn-danger">
-            Leave this inventory
+            Leave this Inventory
           </button>
         </section>
       )}

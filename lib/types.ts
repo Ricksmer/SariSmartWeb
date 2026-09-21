@@ -41,6 +41,7 @@ export type Product = {
 export type PublicProduct = {
   name: string;
   brand: string | null;
+  unit: string | null;
   selling_price: number | null;
   category_name: string | null;
 };

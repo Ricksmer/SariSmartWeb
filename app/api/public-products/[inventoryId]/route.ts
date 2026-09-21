@@ -15,7 +15,7 @@ export async function GET(
 
   const { data, error } = await supabase
     .from("products")
-    .select("name, brand, selling_price, category:categories(name)")
+    .select("name, brand, unit, selling_price, category:categories(name)")
     .eq("inventory_id", inventoryId)
     .eq("archived", false)
     .order("name");
@@ -27,6 +27,7 @@ export async function GET(
   const rows = (data ?? []).map((p) => ({
     name: p.name,
     brand: p.brand,
+    unit: p.unit,
     selling_price: p.selling_price,
     category_name: (p.category as unknown as { name: string } | null)?.name ?? null,
   }));

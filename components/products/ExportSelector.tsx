@@ -68,7 +68,7 @@ export default function ExportSelector({
   async function handleExport() {
     setError(null);
     if (selectedIds.length === 0) {
-      setError("Select at least one product first.");
+      setError("Please select at least one product before exporting.");
       return;
     }
 
@@ -81,110 +81,165 @@ export default function ExportSelector({
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Could not generate the PDF.");
+        throw new Error(body.error || "Failed to generate the PDF.");
       }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `sarismart-price-list-${Date.now()}.pdf`;
+      a.download = `sarismart-pricelist-${Date.now()}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setError(e instanceof Error ? e.message : "An unexpected error occurred.");
     } finally {
       setGenerating(false);
     }
   }
 
   return (
-    <div>
-      <p className="mb-6 text-sm text-stone-500">
-        Choose what to include, then generate a PDF with brand, name, price, and remarks.
-      </p>
+    <div className="max-w-2xl space-y-6 animate-fade-in">
+      <div>
+        <h2 className="text-xl font-black text-stone-900 font-sans">Print &amp; Export Price List</h2>
+        <p className="text-xs text-stone-500 mt-1">
+          Generate a high-resolution, multi-page PDF catalog tailored with your brand, prices, and sizes in (parentheses).
+        </p>
+      </div>
 
-      <div className="mb-6 flex gap-1 rounded-xl bg-stone-100/80 p-1 text-sm w-fit">
+      {/* Mode Switcher */}
+      <div className="flex gap-1.5 rounded-2xl bg-stone-100/90 p-1.5 text-xs font-bold border border-stone-200/60 shadow-xs w-fit">
         <ModeButton current={mode} value="all" onClick={setMode}>
-          All products
+          All Store Products
         </ModeButton>
         <ModeButton current={mode} value="categories" onClick={setMode}>
-          By category
+          By Category
         </ModeButton>
         <ModeButton current={mode} value="items" onClick={setMode}>
-          Specific items
+          Select Specific Items
         </ModeButton>
       </div>
 
+      {/* Category Selection Filter */}
       {mode === "categories" && (
-        <div className="mb-6 flex flex-wrap gap-2">
-          {categories.length === 0 && (
-            <p className="text-sm text-stone-400">No categories yet.</p>
+        <div className="card p-5 border-stone-200/90 shadow-sm bg-white animate-fade-in space-y-3">
+          <p className="text-xs font-bold uppercase tracking-wider text-stone-400">
+            Select categories to include:
+          </p>
+          {categories.length === 0 ? (
+            <p className="text-xs text-stone-400">No categories found in this store.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => {
+                const active = selectedCategories.has(c.id);
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => toggleCategory(c.id)}
+                    className={`rounded-xl border px-3.5 py-1.5 text-xs font-bold transition-all duration-150 ${
+                      active
+                        ? "border-[#1a7949] bg-[#1a7949] text-white shadow-xs"
+                        : "border-stone-200 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50"
+                    }`}
+                  >
+                    {active ? `✓ ${c.name}` : `+ ${c.name}`}
+                  </button>
+                );
+              })}
+            </div>
           )}
-          {categories.map((c) => {
-            const active = selectedCategories.has(c.id);
-            return (
-              <button
-                key={c.id}
-                onClick={() => toggleCategory(c.id)}
-                className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                  active
-                    ? "border-teal-700 bg-teal-700 text-white"
-                    : "border-stone-300 bg-white text-stone-600 hover:border-stone-400"
-                }`}
-              >
-                {c.name}
-              </button>
-            );
-          })}
         </div>
       )}
 
+      {/* Individual Item Selection */}
       {mode === "items" && (
-        <div className="mb-6">
+        <div className="card p-5 border-stone-200/90 shadow-sm bg-white animate-fade-in space-y-3">
           <input
-            placeholder="Search products..."
+            placeholder="Search products to select..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="input mb-3 max-w-xs"
+            className="input text-xs"
           />
-          <div className="card max-h-72 overflow-y-auto">
+          <div className="max-h-72 overflow-y-auto divide-y divide-stone-100 rounded-xl border border-stone-200/70">
             {filteredItems.length ? (
-              filteredItems.map((p) => (
-                <label
-                  key={p.id}
-                  className="flex cursor-pointer items-center gap-3 border-b border-stone-50 px-4 py-2.5 text-sm last:border-b-0 hover:bg-stone-50"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.has(p.id)}
-                    onChange={() => toggleItem(p.id)}
-                    className="h-4 w-4 accent-teal-700"
-                  />
-                  <span className="font-medium text-stone-800">{p.name}</span>
-                  {p.brand && <span className="text-stone-400">{p.brand}</span>}
-                </label>
-              ))
+              filteredItems.map((p) => {
+                const checked = selectedItems.has(p.id);
+                return (
+                  <label
+                    key={p.id}
+                    className={`flex cursor-pointer items-center justify-between px-4 py-2.5 text-xs transition-colors hover:bg-stone-50 ${
+                      checked ? "bg-[#eaf6ee]/40 font-semibold" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleItem(p.id)}
+                        className="h-4 w-4 rounded-md accent-[#1a7949]"
+                      />
+                      <span className="text-stone-800">{p.name}</span>
+                      {p.unit && <span className="text-[11px] text-stone-400 font-mono">({p.unit})</span>}
+                    </div>
+                    {p.brand && <span className="text-stone-400 font-medium">{p.brand}</span>}
+                  </label>
+                );
+              })
             ) : (
-              <p className="px-4 py-6 text-center text-sm text-stone-400">No matches.</p>
+              <p className="px-4 py-8 text-center text-xs text-stone-400">No matching products found.</p>
             )}
           </div>
         </div>
       )}
 
-      <div className="card p-4">
-        <p className="text-sm text-stone-700">
-          <span className="font-medium">{selectedIds.length}</span> product
-          {selectedIds.length === 1 ? "" : "s"} selected
-        </p>
+      {/* Summary & Download Action Card */}
+      <div className="card p-6 border-stone-200/90 shadow-md bg-gradient-to-br from-white to-[#f4faf6]">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm font-bold text-stone-800">
+              <span className="text-base text-[#1a7949] font-black">{selectedIds.length}</span>{" "}
+              {selectedIds.length === 1 ? "Product" : "Products"} Selected
+            </div>
+            <p className="text-xs text-stone-400 mt-0.5">
+              Ready to generate formatted A4 multi-page document
+            </p>
+          </div>
+
+          <button
+            onClick={handleExport}
+            disabled={generating || selectedIds.length === 0}
+            className="btn btn-primary py-3 px-6 text-sm font-bold shadow-md"
+          >
+            {generating ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Compiling PDF...
+              </span>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Download PDF</span>
+              </>
+            )}
+          </button>
+        </div>
+
         {missingPriceCount > 0 && (
-          <p className="mt-1 text-xs text-amber-700">
-            {missingPriceCount} of these have no selling price yet &mdash; they&apos;ll print as &quot;TBD&quot;.
-          </p>
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-800 flex items-center gap-2">
+            <svg className="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>
+              {missingPriceCount} of the selected items currently have no selling price and will display as &quot;TBD&quot;.
+            </span>
+          </div>
         )}
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-        <button onClick={handleExport} disabled={generating} className="btn btn-primary mt-4">
-          {generating ? "Generating..." : "Download PDF"}
-        </button>
+
+        {error && <p className="mt-3 text-xs font-semibold text-[#782d2d]">{error}</p>}
       </div>
     </div>
   );
@@ -205,8 +260,10 @@ function ModeButton({
   return (
     <button
       onClick={() => onClick(value)}
-      className={`rounded-lg px-3.5 py-1.5 font-medium transition ${
-        active ? "bg-white text-stone-900 shadow-sm" : "text-stone-500"
+      className={`rounded-xl px-3.5 py-1.5 font-bold transition-all duration-200 ${
+        active
+          ? "bg-white text-[#1a7949] shadow-sm border border-stone-200/50"
+          : "text-stone-500 hover:text-stone-900 hover:bg-white/60"
       }`}
     >
       {children}
