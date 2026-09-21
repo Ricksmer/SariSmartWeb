@@ -135,6 +135,29 @@ export async function setProductArchived(inventoryId: string, id: string, archiv
   return { error: null };
 }
 
+export async function updateUserProfile(data: {
+  fullName: string;
+  phone: string;
+  storeName: string;
+  location: string;
+  bio: string;
+}) {
+  const { supabase } = await requireUser();
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      full_name: data.fullName,
+      phone: data.phone,
+      store_name: data.storeName,
+      location: data.location,
+      bio: data.bio,
+    },
+  });
+  if (error) return { error: error.message };
+  revalidatePath("/profile");
+  revalidatePath("/", "layout");
+  return { error: null };
+}
+
 export async function signOut() {
   const { supabase } = await requireUser();
   await supabase.auth.signOut();

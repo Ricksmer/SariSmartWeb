@@ -109,7 +109,7 @@ export default function ProductsClient({
       {/* Search & Category Filter Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -118,12 +118,12 @@ export default function ProductsClient({
             placeholder="Search by product name or brand..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="input pl-9 text-sm font-medium"
+            className="input input-has-icon-left text-sm font-medium"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-600"
+              className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-stone-400 hover:text-stone-600"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -153,7 +153,10 @@ export default function ProductsClient({
       </div>
 
       {/* Luxury Products Table */}
-      <div className="card overflow-hidden border-emerald-900/10 shadow-[0_8px_30px_-6px_rgba(26,121,73,0.06)] bg-white">
+      <div className="card overflow-hidden border-emerald-900/10 shadow-[0_8px_30px_-6px_rgba(26,121,73,0.06)] bg-white relative">
+        {/* Top Hairline */}
+        <div className="h-1 bg-gradient-to-r from-[#145a37] via-[#1a7949] to-[#2ecc71] w-full" />
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
@@ -163,8 +166,10 @@ export default function ProductsClient({
                 <th className="px-4 py-3.5">Size / Unit</th>
                 <th className="px-4 py-3.5">Category</th>
                 <th className="px-4 py-3.5">Cost (Buy)</th>
-                <th className="px-4 py-3.5">Selling Price</th>
-                <th className="px-4 py-3.5">Stock</th>
+                <th className="px-4 py-3.5 bg-emerald-100/70 text-[#0f4e2b] font-black border-x border-emerald-200/80">
+                  Selling Price (₱)
+                </th>
+                <th className="px-4 py-3.5 border-r border-emerald-100/80">Stock</th>
                 <th className="px-4 py-3.5">Capital</th>
                 <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
@@ -177,7 +182,7 @@ export default function ProductsClient({
                     className="text-stone-800 transition-colors duration-150 hover:bg-[#f3f9f5] group"
                   >
                     {/* Name */}
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 border-l-4 border-transparent group-hover:border-l-[#1a7949] transition-all">
                       <div className="font-bold text-stone-900 group-hover:text-[#1a7949] transition-colors">
                         {p.name}
                       </div>
@@ -213,7 +218,7 @@ export default function ProductsClient({
                     {/* Category */}
                     <td className="px-4 py-3.5">
                       {p.category?.name ? (
-                        <span className="text-xs font-semibold text-stone-600 bg-stone-50 border border-stone-200/70 px-2 py-0.5 rounded-lg">
+                        <span className="text-xs font-semibold text-emerald-800 bg-emerald-50/80 border border-emerald-200/70 px-2.5 py-0.5 rounded-lg shadow-2xs">
                           {p.category.name}
                         </span>
                       ) : (
@@ -226,21 +231,21 @@ export default function ProductsClient({
                       {formatPrice(p.buy_price)}
                     </td>
 
-                    {/* Selling Price */}
-                    <td className="px-4 py-3.5 font-mono font-bold">
+                    {/* Selling Price (Green Column) */}
+                    <td className="px-4 py-3.5 font-mono font-black bg-emerald-50/80 border-x border-emerald-200/60 shadow-2xs">
                       {p.selling_price === null ? (
                         <span className="badge badge-amber text-[10px]">
                           Price TBD
                         </span>
                       ) : (
-                        <span className="text-stone-900 text-sm">
+                        <span className="text-[#0f4e2b] text-sm">
                           {formatPrice(p.selling_price)}
                         </span>
                       )}
                     </td>
 
                     {/* Quantity & Stock Badge */}
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 border-r border-emerald-100/80">
                       {p.quantity <= 5 ? (
                         <span className="badge badge-red font-bold">
                           {p.quantity} left

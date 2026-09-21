@@ -65,128 +65,135 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-sari-grid flex items-center justify-center p-4 sm:p-6 lg:p-10 overflow-hidden">
+    <div className="relative min-h-screen bg-sari-grid flex items-center justify-center p-3 sm:p-6 lg:p-8 overflow-hidden">
       {/* Decorative ambient background glows */}
-      <div className="pointer-events-none absolute -top-40 -left-40 h-[550px] w-[550px] rounded-full bg-[#1a7949]/12 blur-[120px]" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[600px] w-[600px] rounded-full bg-[#b7dec2]/25 blur-[140px]" />
-      <div className="pointer-events-none absolute top-1/2 left-1/3 h-[400px] w-[400px] -translate-y-1/2 rounded-full bg-[#1a7949]/8 blur-[100px]" />
+      <div className="pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-[#1a7949]/15 blur-[140px]" />
+      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[600px] w-[600px] rounded-full bg-[#b7dec2]/20 blur-[140px]" />
 
-      <div className="relative w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center z-10 py-6">
-        {/* LEFT COLUMN: HERO SHOWCASE & APP DETAILS */}
-        <div className="lg:col-span-7 flex flex-col justify-center space-y-6 lg:pr-6 animate-fade-in">
-          {/* Brand & Badge */}
-          <div className="flex flex-wrap items-center gap-3">
-            <Logo size="lg" variant="full" />
-            <div className="flex items-center gap-2 rounded-full border border-emerald-300/60 bg-emerald-50/90 px-3 py-1 text-xs font-bold text-[#145f39] shadow-xs">
-              <span className="flex h-2 w-2 rounded-full bg-[#1a7949] animate-pulse-glow" />
-              <span>Philippine Retail &amp; Wholesale OS</span>
+      <div className="relative w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-stretch z-10 py-4">
+        {/* LEFT COLUMN: HIGH-CONTRAST EMERALD HERO SHOWCASE */}
+        <div className="lg:col-span-7 flex flex-col justify-between rounded-3xl bg-gradient-to-br from-[#092d19] via-[#124f30] to-[#1a7949] p-7 sm:p-10 text-white shadow-2xl relative overflow-hidden border border-emerald-600/30 animate-fade-in">
+          {/* Subtle geometric pattern overlay */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(183,222,194,0.15)_1px,transparent_1px)] bg-[size:20px_20px] opacity-75" />
+          <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#b7dec2]/15 blur-3xl" />
+
+          <div className="relative z-10 space-y-6">
+            {/* Brand Lockup with White Text */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Logo size="md" variant="icon" />
+                <span className="text-2xl font-black tracking-tight text-white font-heading">
+                  SariSmart<span className="text-emerald-300">.</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-emerald-400/40 bg-white/10 backdrop-blur-md px-3 py-1 text-xs font-bold text-emerald-200 shadow-xs">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse-glow" />
+                <span>Philippine Retail &amp; Wholesale OS</span>
+              </div>
+            </div>
+
+            {/* Hero Headline with High Contrast */}
+            <div className="space-y-3 pt-2">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.12] font-heading">
+                Next-Gen Inventory Intelligence for{" "}
+                <span className="text-emerald-300 underline decoration-emerald-400/50 decoration-wavy decoration-2">
+                  Sari-Sari Stores
+                </span>
+              </h1>
+              <p className="text-sm sm:text-base text-emerald-100/90 font-medium leading-relaxed max-w-xl">
+                Ditch the messy manual notebooks. Track wholesale buy costs, live ₱ profit margins, auto-extract product sizes, print 5-page categorized price sheets, and collaborate across branches with your staff.
+              </p>
+            </div>
+
+            {/* 4 Feature Cards with Translucent Emerald Glass Styling */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md transition-all duration-300 hover:bg-white/15 hover:border-emerald-300/60 hover:scale-[1.02]">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/25 text-emerald-200 font-bold">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-white text-sm font-heading">Margin Telemetry</h3>
+                    <p className="text-xs text-emerald-100/80 font-medium mt-0.5">Live gross margins &amp; capital tracking.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md transition-all duration-300 hover:bg-white/15 hover:border-emerald-300/60 hover:scale-[1.02]">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/25 text-emerald-200 font-bold">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-white text-sm font-heading">5-Page PDF Printing</h3>
+                    <p className="text-xs text-emerald-100/80 font-medium mt-0.5">Zero overlap, native ₱, category sheets.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md transition-all duration-300 hover:bg-white/15 hover:border-emerald-300/60 hover:scale-[1.02]">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/25 text-emerald-200 font-bold">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-white text-sm font-heading">Multi-Store &amp; Staff Sync</h3>
+                    <p className="text-xs text-emerald-100/80 font-medium mt-0.5">Separate owned stores &amp; masked codes.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md transition-all duration-300 hover:bg-white/15 hover:border-emerald-300/60 hover:scale-[1.02]">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/25 text-emerald-200 font-bold">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-white text-sm font-heading">AI Store Copilot</h3>
+                    <p className="text-xs text-emerald-100/80 font-medium mt-0.5">Natural language CRUD &amp; stock inquiry.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Hero Headline */}
-          <div className="space-y-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight leading-[1.15] font-heading">
-              Next-Gen Inventory Intelligence for{" "}
-              <span className="bg-gradient-to-r from-[#145f39] via-[#1a7949] to-[#2ecc71] bg-clip-text text-transparent">
-                Sari-Sari Stores
-              </span>
-            </h1>
-            <p className="text-base sm:text-lg text-stone-600 font-medium leading-relaxed max-w-2xl">
-              Turn manual notebook lists into an automated retail powerhouse. Track wholesale buy costs, live ₱ profit margins, print publication-grade wholesale catalogs, and sync multiple store branches with your staff.
-            </p>
-          </div>
-
-          {/* Feature Highlight Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-            <div className="group rounded-2xl border border-stone-200/80 bg-white/80 p-4 backdrop-blur-md transition-all duration-300 hover:border-emerald-300 hover:bg-white hover:shadow-[0_8px_20px_-4px_rgba(26,121,73,0.12)]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#1a7949] transition-transform group-hover:scale-110">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-bold text-stone-900 text-sm">Real-Time Margin Telemetry</h3>
-                  <p className="text-xs text-stone-500 font-medium">Automatic gross profit &amp; capital calculation.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group rounded-2xl border border-stone-200/80 bg-white/80 p-4 backdrop-blur-md transition-all duration-300 hover:border-emerald-300 hover:bg-white hover:shadow-[0_8px_20px_-4px_rgba(26,121,73,0.12)]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#1a7949] transition-transform group-hover:scale-110">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-bold text-stone-900 text-sm">Flawless 5-Page PDF Printing</h3>
-                  <p className="text-xs text-stone-500 font-medium">Zero text overlap, true ₱ glyph, category banners.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group rounded-2xl border border-stone-200/80 bg-white/80 p-4 backdrop-blur-md transition-all duration-300 hover:border-emerald-300 hover:bg-white hover:shadow-[0_8px_20px_-4px_rgba(26,121,73,0.12)]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#1a7949] transition-transform group-hover:scale-110">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-bold text-stone-900 text-sm">Multi-Store &amp; Staff Sync</h3>
-                  <p className="text-xs text-stone-500 font-medium">Separate owned vs joined stores with secure codes.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group rounded-2xl border border-stone-200/80 bg-white/80 p-4 backdrop-blur-md transition-all duration-300 hover:border-emerald-300 hover:bg-white hover:shadow-[0_8px_20px_-4px_rgba(26,121,73,0.12)]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#1a7949] transition-transform group-hover:scale-110">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-bold text-stone-900 text-sm">Public Mobile Customer Menu</h3>
-                  <p className="text-xs text-stone-500 font-medium">Shareable live QR &amp; price list link for buyers.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Miniature Live Telemetry Showcase Pill */}
-          <div className="rounded-2xl bg-gradient-to-r from-emerald-900 via-[#145a37] to-emerald-950 p-4 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 border border-emerald-700/50">
+          {/* Bottom Live Metric Badge */}
+          <div className="relative z-10 mt-6 rounded-2xl bg-black/25 border border-white/15 p-4 flex flex-wrap items-center justify-between gap-3 backdrop-blur-md">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300 font-black">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-400/30 text-emerald-300 font-black text-sm">
                 ₱
               </div>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-300">Live Telemetry Engine</p>
-                <p className="text-sm font-extrabold text-white">159+ Active SKUs Categorized</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">Live Catalog Health</p>
+                <p className="text-sm font-extrabold text-white">159 Products Auto-Formatted</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-xs font-semibold">
-              <div className="flex items-center gap-1.5 text-emerald-200">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>Zero Margin Leakage</span>
-              </div>
-              <div className="h-4 w-px bg-emerald-700 hidden sm:block" />
-              <span className="text-emerald-300 font-mono">v2.4 Enterprise</span>
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-200">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>Zero Leakage</span>
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: ANIMATED AUTH CARD */}
-        <div className="lg:col-span-5 w-full max-w-md mx-auto animate-fade-in">
-          <div className="card relative overflow-hidden p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(26,121,73,0.18)] border-emerald-200/80 backdrop-blur-xl bg-white/95">
+        {/* RIGHT COLUMN: CLEAN LIGHT AUTH CARD */}
+        <div className="lg:col-span-5 w-full max-w-md mx-auto flex flex-col justify-center animate-fade-in">
+          <div className="card relative overflow-hidden p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(26,121,73,0.18)] border-emerald-200/80 backdrop-blur-xl bg-white/98">
             {/* Top Emerald Gradient Line */}
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#145a37] via-[#1a7949] to-[#2ecc71]" />
 
             {/* Header / Mode Indicator */}
             <div className="mb-6">
               <h2 className="text-2xl font-black text-stone-900 tracking-tight font-heading">
-                {mode === "login" ? "Welcome back" : "Create Store Account"}
+                {mode === "login" ? "Welcome Back" : "Create Store Account"}
               </h2>
               <p className="text-xs sm:text-sm text-stone-500 font-medium mt-1">
                 {mode === "login"
@@ -211,7 +218,7 @@ export default function LoginPage() {
                   setConfirmPassword("");
                   setError(null);
                 }}
-                className={`relative z-10 flex-1 py-2 text-center text-xs sm:text-sm transition-colors duration-200 ${
+                className={`relative z-10 flex-1 py-2 text-center text-xs sm:text-sm transition-colors duration-200 cursor-pointer ${
                   mode === "login" ? "text-stone-900 font-extrabold" : "text-stone-500 hover:text-stone-800"
                 }`}
               >
@@ -223,7 +230,7 @@ export default function LoginPage() {
                   setMode("register");
                   setError(null);
                 }}
-                className={`relative z-10 flex-1 py-2 text-center text-xs sm:text-sm transition-colors duration-200 ${
+                className={`relative z-10 flex-1 py-2 text-center text-xs sm:text-sm transition-colors duration-200 cursor-pointer ${
                   mode === "register" ? "text-stone-900 font-extrabold" : "text-stone-500 hover:text-stone-800"
                 }`}
               >
@@ -238,7 +245,7 @@ export default function LoginPage() {
                   Email Address
                 </label>
                 <div className="relative">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
                     </svg>
@@ -250,7 +257,7 @@ export default function LoginPage() {
                     placeholder="storeowner@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="input pl-9.5 font-medium"
+                    className="input input-has-icon-left font-medium"
                     autoComplete="email"
                   />
                 </div>
@@ -261,7 +268,7 @@ export default function LoginPage() {
                   Password
                 </label>
                 <div className="relative">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -273,13 +280,13 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input pl-9.5 pr-10 font-medium"
+                    className="input input-has-icon-left input-has-icon-right font-medium"
                     autoComplete={mode === "login" ? "current-password" : "new-password"}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-600"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-stone-400 hover:text-stone-600 cursor-pointer"
                     title={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
@@ -302,7 +309,7 @@ export default function LoginPage() {
                     Confirm Password
                   </label>
                   <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
@@ -314,7 +321,7 @@ export default function LoginPage() {
                       placeholder="••••••••"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="input pl-9.5 font-medium"
+                      className="input input-has-icon-left input-has-icon-right font-medium"
                       autoComplete="new-password"
                     />
                   </div>
@@ -346,7 +353,7 @@ export default function LoginPage() {
                 ) : mode === "login" ? (
                   <span className="flex items-center justify-center gap-2">
                     <span>Sign In to Dashboard</span>
-                    <span className="transition-transform group-hover:translate-x-1">→</span>
+                    <span>→</span>
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">

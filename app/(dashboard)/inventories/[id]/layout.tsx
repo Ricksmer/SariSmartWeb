@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import InventoryNavTabs from "@/components/inventories/InventoryNavTabs";
 import MaskedInviteBadge from "@/components/ui/MaskedInviteBadge";
+import AICopilotDrawer from "@/components/ai/AICopilotDrawer";
 
 export default async function InventoryLayout({
   children,
@@ -23,7 +24,7 @@ export default async function InventoryLayout({
   if (!inventory) notFound();
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in relative">
       {/* Top Breadcrumb & Store Header */}
       <div>
         <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-stone-400">
@@ -58,6 +59,9 @@ export default async function InventoryLayout({
 
       {/* Main Tab Content */}
       <div className="animate-fade-in">{children}</div>
+
+      {/* Floating AI Copilot Assistant */}
+      <AICopilotDrawer inventoryId={id} />
     </div>
   );
 }

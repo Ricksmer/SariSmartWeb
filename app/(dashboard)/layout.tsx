@@ -45,16 +45,30 @@ export default async function DashboardLayout({
               <span>Inventories</span>
             </Link>
 
+            <Link
+              href="/profile"
+              className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-stone-700 transition-all hover:bg-emerald-50 hover:text-[#1a7949]"
+            >
+              <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>Profile</span>
+            </Link>
+
             <div className="h-4 w-px bg-stone-200 hidden sm:block" />
 
             {/* User Pill & Signout */}
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/60 py-1 pl-1.5 pr-3 text-xs text-stone-800 shadow-xs">
+              <Link
+                href="/profile"
+                className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/60 py-1 pl-1.5 pr-3 text-xs text-stone-800 shadow-xs hover:border-emerald-400 hover:bg-emerald-100/70 transition-all"
+                title="View Profile & Settings"
+              >
                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#1a7949] font-black text-white text-[10px]">
                   {userInitial}
                 </div>
                 <span className="max-w-[130px] truncate font-bold">{user.email}</span>
-              </div>
+              </Link>
 
               <form action={signOut}>
                 <button

@@ -65,7 +65,7 @@ export default function PriceListPage() {
             placeholder="Search items, drinks, snacks, canned goods..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="input pl-10 text-sm shadow-xs bg-white"
+            className="input input-has-icon-left text-sm shadow-xs bg-white"
           />
           {query && (
             <button
