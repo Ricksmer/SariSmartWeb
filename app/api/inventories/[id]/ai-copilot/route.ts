@@ -146,7 +146,7 @@ export async function POST(
         .eq("inventory_id", inventoryId);
 
       return NextResponse.json({
-        reply: `✓ Successfully updated selling price of **${matchedProduct.name}** to **₱${newPrice.toFixed(2)}** (was ₱${(matchedProduct.selling_price ?? 0).toFixed(2)}).`,
+        reply: `✓ Updated selling price of ${matchedProduct.name} to ₱${newPrice.toFixed(2)} (was ₱${(matchedProduct.selling_price ?? 0).toFixed(2)}).`,
         actionTaken: "update",
         items: [{ ...matchedProduct, selling_price: newPrice }],
       });
@@ -186,7 +186,7 @@ export async function POST(
         .eq("inventory_id", inventoryId);
 
       return NextResponse.json({
-        reply: `✓ Successfully updated stock for **${matchedProduct.name}**: Now **${newQty} in stock** (was ${matchedProduct.quantity}).`,
+        reply: `✓ Updated stock for ${matchedProduct.name}: Now ${newQty} in stock (was ${matchedProduct.quantity}).`,
         actionTaken: "update",
         items: [{ ...matchedProduct, quantity: newQty }],
       });
@@ -218,7 +218,7 @@ export async function POST(
         const item = matchedProducts[0];
         await supabase.from("products").delete().eq("id", item.id).eq("inventory_id", inventoryId);
         return NextResponse.json({
-          reply: `✓ Permanently deleted **${item.name}** from your store catalog.`,
+          reply: `✓ Permanently deleted ${item.name} from your store catalog.`,
           actionTaken: "delete",
           items: [item],
         });
@@ -259,7 +259,7 @@ export async function POST(
         .eq("inventory_id", inventoryId);
 
       return NextResponse.json({
-        reply: `✓ Successfully archived **${matchedProduct.name}**. It will no longer appear in active sales or the public price list.`,
+        reply: `✓ Successfully archived ${matchedProduct.name}. It will no longer appear in active sales or the public price list.`,
         actionTaken: "archive",
         items: [{ ...matchedProduct, archived: true }],
       });
@@ -313,7 +313,7 @@ export async function POST(
       }
 
       return NextResponse.json({
-        reply: `✓ Successfully added **${namePart}** to your store inventory! Selling Price: ₱${(newSellingPrice ?? 0).toFixed(2)}, Stock: ${newQuantity} ${newUnit ? `(${newUnit})` : ""}.`,
+        reply: `✓ Successfully added ${namePart} to your store inventory! Selling Price: ₱${(newSellingPrice ?? 0).toFixed(2)}, Stock: ${newQuantity} ${newUnit ? `(${newUnit})` : ""}.`,
         actionTaken: "create",
         items: [newProd],
       });
@@ -377,16 +377,16 @@ export async function POST(
       const totalQuantity = matchedItems.reduce((sum, p) => sum + p.quantity, 0);
 
       // Build summary reply
-      let reply = `Found **${matchedItems.length}** matching item${matchedItems.length === 1 ? "" : "s"} (${totalQuantity} total units in stock):\n\n`;
+      let reply = `Found ${matchedItems.length} matching item${matchedItems.length === 1 ? "" : "s"} (${totalQuantity} total units in stock):\n\n`;
       matchedItems.slice(0, 10).forEach((p, idx) => {
         const brandStr = p.brand ? `[${p.brand}] ` : "";
         const unitStr = p.unit ? ` (${p.unit})` : "";
         const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
-        reply += `${idx + 1}. **${brandStr}${p.name}**${unitStr} — **${p.quantity} units** | ${priceStr}\n`;
+        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} units | ${priceStr}\n`;
       });
 
       if (matchedItems.length > 10) {
-        reply += `\n*...and ${matchedItems.length - 10} more items.*`;
+        reply += `\n...and ${matchedItems.length - 10} more items.`;
       }
 
       return NextResponse.json({
