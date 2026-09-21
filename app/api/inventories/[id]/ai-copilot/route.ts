@@ -286,7 +286,7 @@ export async function POST(
 
       if (!namePart) {
         return NextResponse.json({
-          reply: "Please specify the name of the product you want to add. Example: *\"Add product Great Taste White price 15 stock 30 unit sachet\"*",
+          reply: 'Please specify the name of the product you want to add. Example: "Add product Great Taste White price 15 stock 30 unit sachet"',
           actionTaken: "none",
         });
       }
@@ -320,63 +320,165 @@ export async function POST(
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 6. INTENT: QUERY (STOCK / QUANTITY / PRICING / CATEGORY)
-    // e.g. "tell me how many each cigarette packs are remaining"
-    // e.g. "how many bear brand" or "ilan natira"
+    // 6. INTENT: LOW STOCK QUERY
+    // e.g. "Tell me items with low stock", "low stock", "running low"
     // ─────────────────────────────────────────────────────────────
     if (
-      lower.includes("how many") ||
-      lower.includes("remaining") ||
-      lower.includes("stock") ||
-      lower.includes("ilan") ||
-      lower.includes("natira") ||
-      lower.includes("count") ||
-      lower.includes("search") ||
-      lower.includes("show") ||
-      lower.includes("list") ||
-      lower.includes("price of") ||
-      lower.includes("magkano")
+      lower.includes("low stock") ||
+      lower.includes("out of stock") ||
+      lower.includes("mababa") ||
+      lower.includes("running low") ||
+      lower.includes("kaunti") ||
+      lower.includes("ubos na")
     ) {
-      // Find keywords
-      let searchTerms = prompt
-        .toLowerCase()
-        .replace(/tell me how many|how many each|how many|are remaining|remaining|packs|pack|are left|left in stock|in stock|natira|ilan pa|magkano ang|what is the price of|show me|list all/gi, "")
-        .replace(/products|items|the|ng|sa/gi, "")
-        .trim();
-
-      let matchedItems = allProducts.filter((p) => !p.archived);
-
-      if (searchTerms.length > 0) {
-        matchedItems = matchedItems.filter((p: any) => {
-          const catName = Array.isArray(p.categories)
-            ? p.categories[0]?.name
-            : p.categories?.name;
-          return (
-            p.name.toLowerCase().includes(searchTerms) ||
-            (p.brand && p.brand.toLowerCase().includes(searchTerms)) ||
-            (catName && catName.toLowerCase().includes(searchTerms))
-          );
-        });
-      }
-
-      // Check special filters: low stock, missing prices
-      if (lower.includes("low stock") || lower.includes("mababa")) {
-        matchedItems = matchedItems.filter((p) => p.quantity <= 5);
-      } else if (lower.includes("missing price") || lower.includes("walang presyo")) {
-        matchedItems = matchedItems.filter((p) => p.selling_price === null);
-      }
-
-      if (matchedItems.length === 0) {
+      const lowStockItems = allProducts.filter((p) => !p.archived && p.quantity <= 5);
+      if (lowStockItems.length === 0) {
         return NextResponse.json({
-          reply: `I checked your catalog and found 0 items matching "${searchTerms || prompt}".`,
+          reply: "Great news! All products in your inventory currently have healthy stock levels (> 5 units on hand).",
           actionTaken: "query",
           items: [],
         });
       }
 
-      const totalQuantity = matchedItems.reduce((sum, p) => sum + p.quantity, 0);
+      let reply = `Found ${lowStockItems.length} items with low stock (5 units or less remaining):\n\n`;
+      lowStockItems.slice(0, 10).forEach((p, idx) => {
+        const brandStr = p.brand ? `[${p.brand}] ` : "";
+        const unitStr = p.unit ? ` (${p.unit})` : "";
+        const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
+        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} units left | ${priceStr}\n`;
+      });
+      if (lowStockItems.length > 10) {
+        reply += `\n...and ${lowStockItems.length - 10} more low-stock items.`;
+      }
 
-      // Build summary reply
+      return NextResponse.json({
+        reply,
+        actionTaken: "query",
+        items: lowStockItems.slice(0, 10),
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 7. INTENT: MISSING PRICE QUERY
+    // e.g. "Tell me items with missing price", "walang presyo", "unpriced"
+    // ─────────────────────────────────────────────────────────────
+    if (
+      lower.includes("missing price") ||
+      lower.includes("no price") ||
+      lower.includes("walang presyo") ||
+      lower.includes("unpriced")
+    ) {
+      const unpricedItems = allProducts.filter((p) => !p.archived && p.selling_price === null);
+      if (unpricedItems.length === 0) {
+        return NextResponse.json({
+          reply: "All active products in your store currently have selling prices configured!",
+          actionTaken: "query",
+          items: [],
+        });
+      }
+
+      let reply = `Found ${unpricedItems.length} items missing a selling price:\n\n`;
+      unpricedItems.slice(0, 10).forEach((p, idx) => {
+        const brandStr = p.brand ? `[${p.brand}] ` : "";
+        const unitStr = p.unit ? ` (${p.unit})` : "";
+        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} in stock | Price TBD\n`;
+      });
+
+      return NextResponse.json({
+        reply,
+        actionTaken: "query",
+        items: unpricedItems.slice(0, 10),
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 8. INTENT: CATEGORY QUERY
+    // e.g. "Show me all Canned Goods", "list beverages", "what candy items do we have"
+    // ─────────────────────────────────────────────────────────────
+    const matchedCategory = allCategories.find((cat: any) => {
+      const catLower = (cat.name || "").toLowerCase();
+      if (lower.includes(catLower)) return true;
+      const words = catLower.split(/[\s&,/]+/).filter((w: string) => w.length > 2);
+      return words.some((w: string) => lower.includes(w));
+    });
+
+    if (
+      matchedCategory &&
+      (lower.includes("show") ||
+        lower.includes("list") ||
+        lower.includes("category") ||
+        lower.includes("all") ||
+        lower.includes("canned") ||
+        lower.includes("beverage") ||
+        lower.includes("drinks") ||
+        lower.includes("goods") ||
+        lower.includes("what") ||
+        lower.includes("anong"))
+    ) {
+      const categoryProducts = allProducts.filter(
+        (p: any) => !p.archived && p.category_id === matchedCategory.id
+      );
+
+      if (categoryProducts.length === 0) {
+        return NextResponse.json({
+          reply: `There are currently no products under "${matchedCategory.name}".`,
+          actionTaken: "query",
+          items: [],
+        });
+      }
+
+      let reply = `Found ${categoryProducts.length} items in ${matchedCategory.name}:\n\n`;
+      categoryProducts.slice(0, 12).forEach((p: any, idx: number) => {
+        const brandStr = p.brand ? `[${p.brand}] ` : "";
+        const unitStr = p.unit ? ` (${p.unit})` : "";
+        const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
+        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} in stock | ${priceStr}\n`;
+      });
+      if (categoryProducts.length > 12) {
+        reply += `\n...and ${categoryProducts.length - 12} more items in this category.`;
+      }
+
+      return NextResponse.json({
+        reply,
+        actionTaken: "query",
+        items: categoryProducts.slice(0, 12),
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 9. INTENT: SPECIFIC PRODUCT / BRAND STOCK & PRICE INQUIRY
+    // e.g. "how many bear brand are remaining?", "price of coke", "ilan ang marlboro"
+    // ─────────────────────────────────────────────────────────────
+    // Clean query keywords
+    let cleanQuery = prompt
+      .toLowerCase()
+      .replace(/^(can you\s+)?(tell me|show me|check|what is the|what's the|how many|magkano ang|ilan ang|meron bang|do you have|do we have|is there|list all|find)\s+/i, "")
+      .replace(/\s+(are remaining|remaining|left in stock|in stock|are left|available|on hand|natira|ba|pa|all|items|products)\b/gi, "")
+      .replace(/\b(of|the|ng|sa|ang|for|about|in)\b/gi, "")
+      .trim();
+
+    if (!cleanQuery) cleanQuery = prompt.trim().toLowerCase();
+    const tokens = cleanQuery.split(/\s+/).filter((t: string) => t.length > 1);
+
+    const matchedItems = allProducts.filter((p: any) => {
+      if (p.archived) return false;
+      const nameLower = (p.name || "").toLowerCase();
+      const brandLower = p.brand ? p.brand.toLowerCase() : "";
+      const catName = (
+        Array.isArray(p.categories) ? p.categories[0]?.name : p.categories?.name
+      )?.toLowerCase() || "";
+
+      if (nameLower.includes(cleanQuery) || brandLower.includes(cleanQuery) || catName.includes(cleanQuery)) {
+        return true;
+      }
+      if (tokens.length > 1) {
+        return tokens.every((tok: string) => nameLower.includes(tok) || brandLower.includes(tok) || catName.includes(tok));
+      }
+      return false;
+    });
+
+    if (matchedItems.length > 0) {
+      const totalQuantity = matchedItems.reduce((sum, p) => sum + p.quantity, 0);
       let reply = `Found ${matchedItems.length} matching item${matchedItems.length === 1 ? "" : "s"} (${totalQuantity} total units in stock):\n\n`;
       matchedItems.slice(0, 10).forEach((p, idx) => {
         const brandStr = p.brand ? `[${p.brand}] ` : "";
@@ -384,7 +486,6 @@ export async function POST(
         const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
         reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} units | ${priceStr}\n`;
       });
-
       if (matchedItems.length > 10) {
         reply += `\n...and ${matchedItems.length - 10} more items.`;
       }
@@ -393,14 +494,12 @@ export async function POST(
         reply,
         actionTaken: "query",
         items: matchedItems.slice(0, 10),
-        totalCount: matchedItems.length,
-        totalQuantity,
       });
     }
 
     // Default Fallback
     return NextResponse.json({
-      reply: `I received: "${prompt}". Here are things I can do for you:\n• *"How many [item] are remaining?"*\n• *"Update price of [item] to [₱]"*\n• *"Set stock of [item] to [quantity]"*\n• *"Add product [name] price [₱] stock [qty]"*\n• *"Delete / Archive [item]"*\n• *"Extract sizes from product names"*`,
+      reply: `I couldn't find any products matching "${cleanQuery}". You can ask me:\n• "Tell me items with low stock"\n• "Show me all Canned Goods"\n• "How many Bear Brand are remaining?"\n• "Update price of Coke Mismo to 20"\n• "Add product Great Taste White price 15 stock 30"`,
       actionTaken: "general",
     });
   } catch (err: unknown) {
