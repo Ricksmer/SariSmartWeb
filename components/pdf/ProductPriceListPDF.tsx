@@ -20,6 +20,7 @@ Font.register({
 export type PDFRow = {
   name: string;
   brand: string | null;
+  manufacturer?: string | null;
   unit: string | null;
   selling_price: number | null;
   remarks: string | null;
@@ -257,7 +258,7 @@ export default function ProductPriceListPDF({
             <View style={styles.tableHeader} wrap={false}>
               <Text style={styles.thItem}>Item Description</Text>
               <Text style={styles.thRemarks}>Remarks / Notes</Text>
-              <Text style={styles.thPrice}>Selling Price</Text>
+              <Text style={styles.thPrice}>Retail Price</Text>
             </View>
 
             {/* Items inside Category */}

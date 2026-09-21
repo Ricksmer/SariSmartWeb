@@ -16,6 +16,7 @@ async function tryGeminiAnalysis(prompt: string, products: any[], categories: an
       .map((p: any) => ({
         name: p.name,
         brand: p.brand || undefined,
+        manufacturer: p.manufacturer || undefined,
         unit: p.unit || undefined,
         price: p.selling_price,
         stock: p.quantity,
@@ -110,7 +111,7 @@ export async function POST(
     const [{ data: products }, { data: categories }] = await Promise.all([
       supabase
         .from("products")
-        .select("id, name, brand, unit, selling_price, buy_price, quantity, archived, category_id, categories(name)")
+        .select("*, categories(name)")
         .eq("inventory_id", inventoryId),
       supabase
         .from("categories")
@@ -894,15 +895,27 @@ export async function POST(
       if (p.archived) return false;
       const nameLower = (p.name || "").toLowerCase();
       const brandLower = p.brand ? p.brand.toLowerCase() : "";
+      const mfrLower = p.manufacturer ? p.manufacturer.toLowerCase() : "";
       const catName = (
         Array.isArray(p.categories) ? p.categories[0]?.name : p.categories?.name
       )?.toLowerCase() || "";
 
-      if (nameLower.includes(cleanQuery) || brandLower.includes(cleanQuery) || catName.includes(cleanQuery)) {
+      if (
+        nameLower.includes(cleanQuery) ||
+        brandLower.includes(cleanQuery) ||
+        mfrLower.includes(cleanQuery) ||
+        catName.includes(cleanQuery)
+      ) {
         return true;
       }
       if (tokens.length > 1) {
-        return tokens.every((tok: string) => nameLower.includes(tok) || brandLower.includes(tok) || catName.includes(tok));
+        return tokens.every(
+          (tok: string) =>
+            nameLower.includes(tok) ||
+            brandLower.includes(tok) ||
+            mfrLower.includes(tok) ||
+            catName.includes(tok)
+        );
       }
       return false;
     });

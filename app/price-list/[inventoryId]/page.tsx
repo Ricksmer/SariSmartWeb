@@ -34,79 +34,94 @@ export default function PriceListPage() {
     const q = query.trim().toLowerCase();
     return products.filter((p) => {
       const matchesQuery =
-        !q || p.name.toLowerCase().includes(q) || p.brand?.toLowerCase().includes(q);
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.brand?.toLowerCase().includes(q) ||
+        p.manufacturer?.toLowerCase().includes(q);
       const matchesCategory = !category || p.category_name === category;
       return matchesQuery && matchesCategory;
     });
   }, [products, query, category]);
 
   return (
-    <div className="min-h-screen bg-[#f8faf8] bg-mesh-pattern px-4 py-8 sm:py-12">
-      <div className="mx-auto max-w-lg animate-fade-in">
+    <div className="min-h-screen bg-[#f8faf8] bg-mesh-pattern px-4 sm:px-8 lg:px-12 py-8 sm:py-10">
+      <div className="w-full max-w-[1920px] mx-auto animate-fade-in space-y-6">
         {/* Customer Header */}
-        <div className="mb-6 flex flex-col items-center text-center">
-          <Logo size="md" variant="full" className="mb-2" />
-          <h1 className="text-xl font-black tracking-tight text-stone-900 font-sans">
-            Store Price List
-          </h1>
-          <p className="mt-1 text-xs text-stone-500 font-medium">
-            Live prices for in-stock retail goods &bull; Updated daily
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative mb-3">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200/80 pb-6">
+          <div className="flex items-center gap-3">
+            <Logo size="md" variant="full" />
+            <div className="h-6 w-px bg-stone-300 hidden sm:block" />
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-stone-900 font-sans">
+                Store Price List
+              </h1>
+              <p className="text-xs text-stone-500 font-medium">
+                Live prices for in-stock retail goods &bull; Updated real-time
+              </p>
+            </div>
           </div>
-          <input
-            placeholder="Search items, drinks, snacks, canned goods..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="input input-has-icon-left text-sm shadow-xs bg-white"
-          />
-          {query && (
-            <button
-              onClick={() => setQuery("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-600"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
+
+          <div className="text-xs text-stone-400 font-mono">
+            {filtered.length} {filtered.length === 1 ? "item" : "items"} available
+          </div>
         </div>
 
-        {/* Category Filter Pills */}
-        {categories.length > 0 && (
-          <div className="mb-4 flex flex-wrap gap-1.5 overflow-x-auto pb-1">
-            <button
-              onClick={() => setCategory("")}
-              className={`rounded-xl px-3 py-1 text-xs font-bold transition-all ${
-                category === ""
-                  ? "bg-[#1a7949] text-white shadow-xs"
-                  : "bg-white text-stone-600 border border-stone-200/80 hover:bg-stone-50"
-              }`}
-            >
-              All Items ({products.length})
-            </button>
-            {categories.map((c) => (
+        {/* Search & Category Filter Toolbar */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Search Bar */}
+          <div className="relative flex-1 max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              placeholder="Search items, drinks, snacks, canned goods..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="input input-has-icon-left text-sm shadow-xs bg-white w-full"
+            />
+            {query && (
               <button
-                key={c}
-                onClick={() => setCategory(c)}
-                className={`rounded-xl px-3 py-1 text-xs font-bold transition-all ${
-                  category === c
+                onClick={() => setQuery("")}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-600 cursor-pointer"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Category Filter Pills */}
+          {categories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 overflow-x-auto pb-1 max-w-full">
+              <button
+                onClick={() => setCategory("")}
+                className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                  category === ""
                     ? "bg-[#1a7949] text-white shadow-xs"
                     : "bg-white text-stone-600 border border-stone-200/80 hover:bg-stone-50"
                 }`}
               >
-                {c}
+                All Items ({products.length})
               </button>
-            ))}
-          </div>
-        )}
+              {categories.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCategory(c)}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                    category === c
+                      ? "bg-[#1a7949] text-white shadow-xs"
+                      : "bg-white text-stone-600 border border-stone-200/80 hover:bg-stone-50"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* State Indicators */}
         {loading && (
@@ -125,47 +140,60 @@ export default function PriceListPage() {
           </div>
         )}
 
-        {/* Product Price Cards */}
+        {/* Product Price Cards Grid (Full Width) */}
         {!loading && !error && (
-          <div className="card overflow-hidden border-stone-200/90 shadow-sm bg-white divide-y divide-stone-100">
+          <div>
             {filtered.length > 0 ? (
-              filtered.map((p, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between px-4 py-3.5 hover:bg-[#fcfdfc] transition-colors"
-                >
-                  <div className="pr-4">
-                    <div className="flex items-baseline gap-1.5 flex-wrap">
-                      {p.brand && (
-                        <span className="text-xs font-bold text-[#1a7949]">
-                          {p.brand} &bull;
-                        </span>
-                      )}
-                      <span className="text-sm font-bold text-stone-900">
-                        {p.name}
-                      </span>
-                      {p.unit && (
-                        <span className="badge badge-mint font-mono text-[10px] py-0">
-                          ({p.unit})
-                        </span>
-                      )}
-                    </div>
-                    {p.category_name && (
-                      <p className="text-[11px] font-medium text-stone-400 mt-0.5">
-                        {p.category_name}
-                      </p>
-                    )}
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5">
+                {filtered.map((p, i) => (
+                  <div
+                    key={i}
+                    className="card p-4 bg-white border-stone-200/90 shadow-2xs hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between group"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-1 mb-1.5">
+                        {p.category_name ? (
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                            {p.category_name}
+                          </span>
+                        ) : <span />}
+                        {p.unit && (
+                          <span className="badge badge-mint font-mono text-[10px] py-0">
+                            ({p.unit})
+                          </span>
+                        )}
+                      </div>
 
-                  <div className="text-right shrink-0">
-                    <span className="font-mono text-base font-black text-[#0f472b]">
-                      {formatPrice(p.selling_price)}
-                    </span>
+                      <div className="mt-1">
+                        {p.brand && (
+                          <p className="text-xs font-extrabold text-[#1a7949] leading-tight mb-0.5">
+                            {p.brand}
+                          </p>
+                        )}
+                        <h3 className="text-sm font-bold text-stone-900 group-hover:text-[#145a37] transition-colors leading-snug line-clamp-2">
+                          {p.name}
+                        </h3>
+                        {p.manufacturer && (
+                          <p className="text-[11px] text-stone-400 mt-1 truncate" title={p.manufacturer}>
+                            {p.manufacturer}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
+                        Retail Price
+                      </span>
+                      <span className="font-mono text-base font-black text-[#145a37]">
+                        {formatPrice(p.selling_price)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
-              <div className="py-14 px-4 text-center">
+              <div className="card py-16 px-4 text-center">
                 <p className="text-sm font-bold text-stone-700">No items match your search</p>
                 <p className="text-xs text-stone-400 mt-1">Try typing a different item or brand name.</p>
               </div>
@@ -173,7 +201,7 @@ export default function PriceListPage() {
           </div>
         )}
 
-        <div className="mt-8 text-center text-[11px] text-stone-400">
+        <div className="mt-12 text-center text-[11px] text-stone-400 pb-6">
           Powered by <span className="font-bold text-[#1a7949]">SariSmart</span> Retail Operations
         </div>
       </div>

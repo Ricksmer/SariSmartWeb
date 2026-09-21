@@ -26,6 +26,7 @@ export type Product = {
   category_id: string | null;
   name: string;
   brand: string | null;
+  manufacturer?: string | null;
   unit: string | null;
   buy_price: number | null;
   selling_price: number | null;
@@ -41,6 +42,7 @@ export type Product = {
 export type PublicProduct = {
   name: string;
   brand: string | null;
+  manufacturer?: string | null;
   unit: string | null;
   selling_price: number | null;
   category_name: string | null;
@@ -51,9 +53,32 @@ export function formatPrice(value: number | null): string {
   return `₱${value.toFixed(2)}`;
 }
 
-export function capitalTiedUp(product: Pick<Product, "buy_price" | "quantity">): number | null {
+// Total Unit Cost (formerly Capital Tied Up)
+export function totalUnitCost(product: Pick<Product, "buy_price" | "quantity">): number | null {
   if (product.buy_price === null) return null;
   return product.buy_price * product.quantity;
+}
+
+// Alias for backwards compatibility
+export const capitalTiedUp = totalUnitCost;
+
+// Profit per unit (Retail Price - Unit Cost)
+export function unitProfit(product: Pick<Product, "buy_price" | "selling_price">): number | null {
+  if (product.selling_price === null || product.buy_price === null) return null;
+  return product.selling_price - product.buy_price;
+}
+
+// Total Profit across remaining stock (Profit per unit * Quantity)
+export function totalProfit(product: Pick<Product, "buy_price" | "selling_price" | "quantity">): number | null {
+  const profit = unitProfit(product);
+  if (profit === null) return null;
+  return profit * product.quantity;
+}
+
+// Profit Margin percentage: ((Retail Price - Unit Cost) / Retail Price) * 100
+export function profitMargin(buyPrice: number | null, sellingPrice: number | null): number | null {
+  if (buyPrice === null || sellingPrice === null || sellingPrice <= 0) return null;
+  return ((sellingPrice - buyPrice) / sellingPrice) * 100;
 }
 
 // "corned beef" -> "Corned Beef". Applied to product names on save so the

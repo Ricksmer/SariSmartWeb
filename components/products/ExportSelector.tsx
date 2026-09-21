@@ -24,7 +24,12 @@ export default function ExportSelector({
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return products;
-    return products.filter((p) => p.name.toLowerCase().includes(q));
+    return products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.brand?.toLowerCase().includes(q) ||
+        p.manufacturer?.toLowerCase().includes(q)
+    );
   }, [products, query]);
 
   const selectedIds = useMemo(() => {
@@ -180,7 +185,10 @@ export default function ExportSelector({
                       <span className="text-stone-800">{p.name}</span>
                       {p.unit && <span className="text-[11px] text-stone-400 font-mono">({p.unit})</span>}
                     </div>
-                    {p.brand && <span className="text-stone-400 font-medium">{p.brand}</span>}
+                    <div className="flex items-center gap-2">
+                      {p.brand && <span className="text-stone-600 font-semibold">{p.brand}</span>}
+                      {p.manufacturer && <span className="text-stone-400 text-[11px]">({p.manufacturer})</span>}
+                    </div>
                   </label>
                 );
               })

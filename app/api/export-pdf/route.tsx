@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
   const { data: products, error } = await supabase
     .from("products")
-    .select("name, brand, unit, selling_price, remarks, category:categories(name)")
+    .select("*, category:categories(name)")
     .in("id", productIds);
 
   if (error) {
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
   const rows = (products ?? []).map((p) => ({
     name: p.name,
     brand: p.brand,
+    manufacturer: (p as unknown as { manufacturer?: string | null }).manufacturer ?? null,
     unit: p.unit,
     selling_price: p.selling_price,
     remarks: p.remarks,

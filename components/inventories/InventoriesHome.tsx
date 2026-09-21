@@ -101,7 +101,7 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
               Store Hub &amp; Inventories
             </h1>
             <p className="mt-1.5 text-xs sm:text-sm text-emerald-100/90 font-medium max-w-xl">
-              Manage retail branches, switch live product catalogs, print 5-page price lists, and collaborate with staff.
+              Manage retail branches, switch live product catalogs, print customer price lists, and collaborate with staff.
             </p>
           </div>
 

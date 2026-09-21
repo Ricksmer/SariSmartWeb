@@ -38,7 +38,7 @@ export default async function CategoriesPage({ params }: { params: Promise<{ id:
             </span>
           </div>
           <p className="text-xs sm:text-sm text-stone-500 mt-1 font-medium">
-            Organize retail products into Philippine sari-sari aisles for automated 5-page PDF grouping.
+            Organize retail products into Philippine sari-sari aisles for structured price lists and catalog grouping.
           </p>
         </div>
       </div>

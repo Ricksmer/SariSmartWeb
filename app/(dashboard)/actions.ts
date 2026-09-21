@@ -102,6 +102,7 @@ export async function deleteCategory(inventoryId: string, id: string) {
 export type ProductInput = {
   name: string;
   brand: string | null;
+  manufacturer?: string | null;
   unit: string | null;
   category_id: string | null;
   buy_price: number | null;
@@ -117,6 +118,9 @@ export async function createProduct(inventoryId: string, input: ProductInput) {
   const { error } = await supabase.from("products").insert({
     ...input,
     name: toTitleCase(input.name),
+    brand: input.brand?.trim() || null,
+    manufacturer: input.manufacturer?.trim() || null,
+    unit: input.unit?.trim() || null,
     inventory_id: inventoryId,
   });
   if (error) return { error: error.message };
@@ -130,7 +134,13 @@ export async function updateProduct(inventoryId: string, id: string, input: Prod
 
   const { error } = await supabase
     .from("products")
-    .update({ ...input, name: toTitleCase(input.name) })
+    .update({
+      ...input,
+      name: toTitleCase(input.name),
+      brand: input.brand?.trim() || null,
+      manufacturer: input.manufacturer?.trim() || null,
+      unit: input.unit?.trim() || null,
+    })
     .eq("id", id);
   if (error) return { error: error.message };
   revalidatePath(`/inventories/${inventoryId}/products`);

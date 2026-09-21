@@ -61,32 +61,37 @@ export default function InventoryNavTabs({ inventoryId }: { inventoryId: string 
   ];
 
   return (
-    <div className="flex gap-1.5 overflow-x-auto rounded-2xl bg-white/95 backdrop-blur-md p-1.5 text-sm w-fit border border-emerald-900/10 shadow-[0_2px_12px_-2px_rgba(26,121,73,0.08)] mb-8">
-      {tabs.map((tab) => {
-        const isActive = tab.exact
-          ? pathname === tab.href
-          : pathname.startsWith(tab.href) && !pathname.includes("/export");
+    <div className="w-full max-w-full overflow-x-auto pb-1 mb-6">
+      <nav
+        aria-label="Inventory Navigation"
+        className="inline-flex items-center gap-2 rounded-2xl bg-white p-2 border-2 border-emerald-800/20 shadow-[0_8px_30px_-6px_rgba(20,90,55,0.14)]"
+      >
+        {tabs.map((tab) => {
+          const isActive = tab.exact
+            ? pathname === tab.href
+            : pathname.startsWith(tab.href) && !pathname.includes("/export");
 
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 font-semibold text-xs transition-all duration-200 cursor-pointer ${
-              isActive
-                ? "bg-[#1a7949] text-white font-extrabold shadow-md border border-emerald-700"
-                : "text-stone-700 hover:text-[#1a7949] hover:bg-emerald-50/70 hover:border-emerald-200/80 border border-transparent"
-            }`}
-          >
-            <span className={isActive ? "text-emerald-100 scale-105" : "text-stone-400"}>
-              {tab.icon}
-            </span>
-            <span>{tab.label}</span>
-            {isActive && (
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-200 animate-pulse-glow ml-0.5" />
-            )}
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-xl px-4 sm:px-5 py-2.5 font-bold text-xs sm:text-sm transition-all duration-200 cursor-pointer ${
+                isActive
+                  ? "bg-gradient-to-r from-[#0e4829] via-[#145a37] to-[#1a7949] text-white font-black shadow-md scale-[1.01]"
+                  : "text-stone-700 hover:text-[#0e4829] hover:bg-emerald-50/80 border border-transparent font-bold"
+              }`}
+            >
+              <span className={isActive ? "text-emerald-200 scale-110" : "text-stone-400 group-hover:text-[#1a7949]"}>
+                {tab.icon}
+              </span>
+              <span>{tab.label}</span>
+              {isActive && (
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] ml-0.5" />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

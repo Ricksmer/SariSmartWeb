@@ -95,8 +95,8 @@ export default async function DashboardLayout({
       {/* Modern Footer (Full Screen Width) */}
       <footer className="border-t border-emerald-900/10 bg-white/70 backdrop-blur-md py-6 text-center text-xs text-stone-500">
         <div className="w-full max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-14 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="font-medium">SariSmart OS &bull; Retail Intelligence &amp; Margin Telemetry for Sari-Sari Stores</p>
-          <p className="text-[11px] text-stone-400 font-mono">100% Encrypted &bull; Multi-Branch</p>
+          <p className="font-medium">SariSmart OS &copy; 2026</p>
+          <p className="text-[11px] text-stone-400">All rights reserved.</p>
         </div>
       </footer>
     </div>

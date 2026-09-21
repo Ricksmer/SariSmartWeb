@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,14 +45,14 @@ export default function LoginPage() {
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({ email, password });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       setError(error.message);
       return;
     }
 
     if (mode === "register") {
+      setLoading(false);
       setError(null);
       setMode("login");
       setPassword("");
@@ -60,6 +61,8 @@ export default function LoginPage() {
       return;
     }
 
+    // Login succeeded: keep button disabled and show Confirmed state during redirect
+    setIsConfirmed(true);
     router.push("/");
     router.refresh();
   }
@@ -99,7 +102,7 @@ export default function LoginPage() {
               </span>
             </h1>
             <p className="text-sm sm:text-base text-emerald-100/90 font-medium leading-relaxed max-w-xl">
-              Replace messy manual paper notebooks. Track wholesale buy costs, live ₱ profit margins, auto-extract product sizes, print 5-page categorized price sheets, and collaborate across branches with your staff.
+              Replace messy manual paper notebooks. Track wholesale buy costs, live ₱ profit margins, auto-extract product sizes, print categorized price sheets, and collaborate across branches with your staff.
             </p>
           </div>
 
@@ -127,8 +130,8 @@ export default function LoginPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-white text-sm font-heading">5-Page PDF Printing</h3>
-                  <p className="text-xs text-emerald-100/80 font-medium mt-0.5">Zero overlap, native ₱, category sheets.</p>
+                  <h3 className="font-extrabold text-white text-sm font-heading">PDF Price List Printing</h3>
+                  <p className="text-xs text-emerald-100/80 font-medium mt-0.5">Native ₱ currency, clean layout, category sheets.</p>
                 </div>
               </div>
             </div>
@@ -170,13 +173,13 @@ export default function LoginPage() {
               ₱
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">Live Catalog Health</p>
-              <p className="text-sm font-extrabold text-white">159 Products Auto-Formatted</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">Retail Intelligence</p>
+              <p className="text-sm font-extrabold text-white">Live Cloud Inventory Telemetry</p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs font-bold text-emerald-200">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>Zero Leakage</span>
+            <span>Real-Time Sync</span>
           </div>
         </div>
       </div>
@@ -337,25 +340,32 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="btn btn-primary btn-shimmer w-full py-3 text-sm font-black shadow-lg mt-2 cursor-pointer"
+                disabled={loading || isConfirmed}
+                className="btn btn-primary btn-shimmer w-full py-3 text-sm font-black shadow-lg mt-2 cursor-pointer disabled:opacity-85 disabled:cursor-not-allowed transition-all"
               >
-                {loading ? (
+                {isConfirmed ? (
+                  <span className="flex items-center justify-center gap-2 text-white">
+                    <svg className="h-4 w-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Confirmed &bull; Redirecting...</span>
+                  </span>
+                ) : loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="h-4 w-4 animate-spin text-white" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    Processing...
+                    <span>{mode === "login" ? "Logging in..." : "Creating account..."}</span>
                   </span>
                 ) : mode === "login" ? (
                   <span className="flex items-center justify-center gap-2">
-                    <span>Sign In to Dashboard</span>
+                    <span>Log in</span>
                     <span>→</span>
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
-                    <span>Create Store Account</span>
+                    <span>Create Account</span>
                     <span>→</span>
                   </span>
                 )}
@@ -369,7 +379,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-xs text-stone-500 font-medium">
-            SariSmart OS &copy; 2026 &bull; Designed for Philippine MSME Grocers
+            SariSmart OS &copy; 2026 &bull; All rights reserved.
           </p>
         </div>
       </div>
