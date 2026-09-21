@@ -33,11 +33,7 @@ export default function PriceListPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products.filter((p) => {
-      const matchesQuery =
-        !q ||
-        p.name.toLowerCase().includes(q) ||
-        p.brand?.toLowerCase().includes(q) ||
-        p.manufacturer?.toLowerCase().includes(q);
+      const matchesQuery = !q || p.name.toLowerCase().includes(q);
       const matchesCategory = !category || p.category_name === category;
       return matchesQuery && matchesCategory;
     });
@@ -165,19 +161,9 @@ export default function PriceListPage() {
                       </div>
 
                       <div className="mt-1">
-                        {p.brand && (
-                          <p className="text-xs font-extrabold text-[#1a7949] leading-tight mb-0.5">
-                            {p.brand}
-                          </p>
-                        )}
                         <h3 className="text-sm font-bold text-stone-900 group-hover:text-[#145a37] transition-colors leading-snug line-clamp-2">
                           {p.name}
                         </h3>
-                        {p.manufacturer && (
-                          <p className="text-[11px] text-stone-400 mt-1 truncate" title={p.manufacturer}>
-                            {p.manufacturer}
-                          </p>
-                        )}
                       </div>
                     </div>
 

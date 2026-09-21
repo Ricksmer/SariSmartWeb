@@ -308,7 +308,7 @@ export default function AICopilotDrawer({ inventoryId }: { inventoryId: string }
                           }`}
                         >
                           <span className="truncate max-w-[160px] sm:max-w-[200px]">
-                            {it.brand ? `[${it.brand}] ` : ""}{it.name}
+                            {it.name}
                           </span>
                           <span className="font-mono font-bold text-[11px] shrink-0 ml-2">
                             ₱{it.selling_price?.toFixed(2) ?? "TBD"} &bull; {it.quantity} left

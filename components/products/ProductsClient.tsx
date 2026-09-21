@@ -62,11 +62,7 @@ export default function ProductsClient({
     return products.filter((p) => {
       if (view === "active" && p.archived) return false;
       if (view === "archived" && !p.archived) return false;
-      const matchesQuery =
-        !q ||
-        p.name.toLowerCase().includes(q) ||
-        p.brand?.toLowerCase().includes(q) ||
-        p.manufacturer?.toLowerCase().includes(q);
+      const matchesQuery = !q || p.name.toLowerCase().includes(q);
       const matchesCategory = !categoryFilter || p.category_id === categoryFilter;
       return matchesQuery && matchesCategory;
     });
@@ -209,7 +205,7 @@ export default function ProductsClient({
             </svg>
           </div>
           <input
-            placeholder="Search by product name, brand, or manufacturer..."
+            placeholder="Search products..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="input input-has-icon-left text-sm font-medium"
@@ -217,7 +213,7 @@ export default function ProductsClient({
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-stone-400 hover:text-stone-600"
+              className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-stone-400 hover:text-stone-600 cursor-pointer"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -226,11 +222,12 @@ export default function ProductsClient({
           )}
         </div>
 
-        <div className="relative sm:w-56">
+        {/* Category Dropdown (Clean, properly padded with custom SVG chevron) */}
+        <div className="relative w-full sm:w-60">
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="input text-sm cursor-pointer pr-8 font-semibold text-stone-700"
+            className="w-full appearance-none rounded-xl border border-stone-200/90 bg-white px-4 py-2.5 pr-10 text-xs sm:text-sm font-bold text-stone-800 shadow-2xs hover:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 cursor-pointer transition-all"
           >
             <option value="">All Categories ({categories.length})</option>
             {categories.map((c) => (
@@ -239,6 +236,11 @@ export default function ProductsClient({
               </option>
             ))}
           </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-stone-400">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
 
         {/* View Toggle: Minimize (Screen Size + Slider) vs Maximize (Full Page) */}
@@ -273,25 +275,21 @@ export default function ProductsClient({
               </>
             )}
           </button>
-
-          <span className="hidden lg:inline-block text-xs font-bold text-stone-400">
-            {filtered.length} of {view === "active" ? activeCount : archivedCount}
-          </span>
         </div>
       </div>
 
       {/* Luxury Products Table */}
-      <div className={`card ${isMaximized ? "overflow-visible" : "overflow-hidden"} border-emerald-900/10 shadow-[0_8px_30px_-6px_rgba(26,121,73,0.06)] bg-white relative transition-all`}>
-        {/* Top Hairline */}
-        <div className="h-1 bg-gradient-to-r from-[#0e4829] via-[#145a37] to-[#2ecc71] w-full" />
+      <div className={`rounded-2xl ${isMaximized ? "overflow-visible border-0 bg-transparent shadow-none" : "overflow-hidden border border-emerald-900/10 shadow-[0_8px_30px_-6px_rgba(26,121,73,0.06)] bg-white"} relative transition-all`}>
+        {/* Top Hairline only for minimized view */}
+        {!isMaximized && (
+          <div className="h-1 bg-gradient-to-r from-[#0e4829] via-[#145a37] to-[#2ecc71] w-full" />
+        )}
 
         <div className={`overflow-x-auto ${isMaximized ? "overflow-y-visible" : "max-h-[calc(100vh-280px)] min-h-[460px] overflow-y-auto custom-scrollbar"}`}>
-          <table className="w-full text-left text-sm border-separate border-spacing-0">
+          <table className="w-full text-left text-sm border-separate border-spacing-0 bg-white rounded-2xl overflow-hidden border border-emerald-900/10 shadow-sm">
             <thead className={`sticky ${isMaximized ? "top-[61px]" : "top-0"} z-20 bg-[#0e4829] text-white shadow-md transition-all`}>
               <tr className="text-[11px] font-black uppercase tracking-wider text-white font-heading">
                 <th className={`px-5 py-3.5 sticky ${isMaximized ? "top-[61px]" : "top-0"} z-20 bg-[#0e4829] text-white border-b border-emerald-950`}>Product Name</th>
-                <th className={`px-3.5 py-3.5 sticky ${isMaximized ? "top-[61px]" : "top-0"} z-20 bg-[#0e4829] text-white border-b border-emerald-950`}>Brand</th>
-                <th className={`px-3.5 py-3.5 sticky ${isMaximized ? "top-[61px]" : "top-0"} z-20 bg-[#0e4829] text-white border-b border-emerald-950`}>Manufacturer</th>
                 <th className={`px-3 py-3.5 sticky ${isMaximized ? "top-[61px]" : "top-0"} z-20 bg-[#0e4829] text-white border-b border-emerald-950`}>Size / Unit</th>
                 <th className={`px-3.5 py-3.5 sticky ${isMaximized ? "top-[61px]" : "top-0"} z-20 bg-[#0e4829] text-white border-b border-emerald-950`}>Category</th>
                 <th className={`px-3.5 py-3.5 sticky ${isMaximized ? "top-[61px]" : "top-0"} z-20 bg-[#0e4829] text-white border-b border-emerald-950`}>Unit Cost</th>
@@ -321,28 +319,6 @@ export default function ProductsClient({
                         <div className="text-[11px] font-normal italic text-stone-400 mt-0.5">
                           {p.remarks}
                         </div>
-                      )}
-                    </td>
-
-                    {/* Brand */}
-                    <td className="px-3.5 py-3.5 text-stone-600 font-medium">
-                      {p.brand ? (
-                        <span className="rounded-md bg-stone-100 px-2 py-0.5 text-xs text-stone-700 font-semibold border border-stone-200/60">
-                          {p.brand}
-                        </span>
-                      ) : (
-                        <span className="text-stone-300">&mdash;</span>
-                      )}
-                    </td>
-
-                    {/* Manufacturer */}
-                    <td className="px-3.5 py-3.5 text-stone-600 text-xs">
-                      {p.manufacturer ? (
-                        <span className="rounded-md bg-stone-50 px-2 py-0.5 text-[11px] text-stone-700 font-medium border border-stone-200/70 inline-block max-w-[140px] truncate" title={p.manufacturer}>
-                          {p.manufacturer}
-                        </span>
-                      ) : (
-                        <span className="text-stone-300">&mdash;</span>
                       )}
                     </td>
 

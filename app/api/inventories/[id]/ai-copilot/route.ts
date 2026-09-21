@@ -550,10 +550,9 @@ export async function POST(
 
       let reply = `Found ${lowStockItems.length} items with low stock (5 units or less remaining):\n\n`;
       lowStockItems.slice(0, 10).forEach((p, idx) => {
-        const brandStr = p.brand ? `[${p.brand}] ` : "";
         const unitStr = p.unit ? ` (${p.unit})` : "";
         const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
-        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} units left | ${priceStr}\n`;
+        reply += `${idx + 1}. ${p.name}${unitStr} — ${p.quantity} units left | ${priceStr}\n`;
       });
       if (lowStockItems.length > 10) {
         reply += `\n...and ${lowStockItems.length - 10} more low-stock items.`;
@@ -587,9 +586,8 @@ export async function POST(
 
       let reply = `Found ${unpricedItems.length} items missing a selling price:\n\n`;
       unpricedItems.slice(0, 10).forEach((p, idx) => {
-        const brandStr = p.brand ? `[${p.brand}] ` : "";
         const unitStr = p.unit ? ` (${p.unit})` : "";
-        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} in stock | Price TBD\n`;
+        reply += `${idx + 1}. ${p.name}${unitStr} — ${p.quantity} in stock | Price TBD\n`;
       });
 
       return NextResponse.json({
@@ -752,9 +750,8 @@ export async function POST(
 
       let reply = `Top most expensive products in your store:\n\n`;
       priced.slice(0, 5).forEach((p: any, idx: number) => {
-        const brandStr = p.brand ? `[${p.brand}] ` : "";
         const unitStr = p.unit ? ` (${p.unit})` : "";
-        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ₱${(p.selling_price || 0).toFixed(2)} (${p.quantity} in stock)\n`;
+        reply += `${idx + 1}. ${p.name}${unitStr} — ₱${(p.selling_price || 0).toFixed(2)} (${p.quantity} in stock)\n`;
       });
 
       return NextResponse.json({
@@ -783,9 +780,8 @@ export async function POST(
 
       let reply = `Cheapest products in your store:\n\n`;
       priced.slice(0, 5).forEach((p: any, idx: number) => {
-        const brandStr = p.brand ? `[${p.brand}] ` : "";
         const unitStr = p.unit ? ` (${p.unit})` : "";
-        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ₱${(p.selling_price || 0).toFixed(2)} (${p.quantity} in stock)\n`;
+        reply += `${idx + 1}. ${p.name}${unitStr} — ₱${(p.selling_price || 0).toFixed(2)} (${p.quantity} in stock)\n`;
       });
 
       return NextResponse.json({
@@ -807,10 +803,9 @@ export async function POST(
 
       let reply = `Products with the highest stock on hand:\n\n`;
       sortedStock.slice(0, 5).forEach((p: any, idx: number) => {
-        const brandStr = p.brand ? `[${p.brand}] ` : "";
         const unitStr = p.unit ? ` (${p.unit})` : "";
         const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
-        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} units | ${priceStr}\n`;
+        reply += `${idx + 1}. ${p.name}${unitStr} — ${p.quantity} units | ${priceStr}\n`;
       });
 
       return NextResponse.json({
@@ -860,10 +855,9 @@ export async function POST(
 
       let reply = `Found ${categoryProducts.length} items in ${matchedCategory.name}:\n\n`;
       categoryProducts.slice(0, 12).forEach((p: any, idx: number) => {
-        const brandStr = p.brand ? `[${p.brand}] ` : "";
         const unitStr = p.unit ? ` (${p.unit})` : "";
         const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
-        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} in stock | ${priceStr}\n`;
+        reply += `${idx + 1}. ${p.name}${unitStr} — ${p.quantity} in stock | ${priceStr}\n`;
       });
       if (categoryProducts.length > 12) {
         reply += `\n...and ${categoryProducts.length - 12} more items in this category.`;
@@ -894,16 +888,12 @@ export async function POST(
     const matchedItems = allProducts.filter((p: any) => {
       if (p.archived) return false;
       const nameLower = (p.name || "").toLowerCase();
-      const brandLower = p.brand ? p.brand.toLowerCase() : "";
-      const mfrLower = p.manufacturer ? p.manufacturer.toLowerCase() : "";
       const catName = (
         Array.isArray(p.categories) ? p.categories[0]?.name : p.categories?.name
       )?.toLowerCase() || "";
 
       if (
         nameLower.includes(cleanQuery) ||
-        brandLower.includes(cleanQuery) ||
-        mfrLower.includes(cleanQuery) ||
         catName.includes(cleanQuery)
       ) {
         return true;
@@ -912,8 +902,6 @@ export async function POST(
         return tokens.every(
           (tok: string) =>
             nameLower.includes(tok) ||
-            brandLower.includes(tok) ||
-            mfrLower.includes(tok) ||
             catName.includes(tok)
         );
       }
@@ -924,10 +912,9 @@ export async function POST(
       const totalQuantity = matchedItems.reduce((sum, p) => sum + p.quantity, 0);
       let reply = `Found ${matchedItems.length} matching item${matchedItems.length === 1 ? "" : "s"} (${totalQuantity} total units in stock):\n\n`;
       matchedItems.slice(0, 10).forEach((p, idx) => {
-        const brandStr = p.brand ? `[${p.brand}] ` : "";
         const unitStr = p.unit ? ` (${p.unit})` : "";
         const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
-        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} units | ${priceStr}\n`;
+        reply += `${idx + 1}. ${p.name}${unitStr} — ${p.quantity} units | ${priceStr}\n`;
       });
       if (matchedItems.length > 10) {
         reply += `\n...and ${matchedItems.length - 10} more items.`;

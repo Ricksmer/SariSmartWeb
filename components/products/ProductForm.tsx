@@ -17,8 +17,6 @@ export default function ProductForm({
   onClose: () => void;
 }) {
   const [name, setName] = useState(product?.name ?? "");
-  const [brand, setBrand] = useState(product?.brand ?? "");
-  const [manufacturer, setManufacturer] = useState(product?.manufacturer ?? "");
   const [unit, setUnit] = useState(product?.unit ?? "");
   const [categoryId, setCategoryId] = useState(product?.category_id ?? "");
   const [buyPrice, setBuyPrice] = useState(product?.buy_price?.toString() ?? "");
@@ -34,8 +32,6 @@ export default function ProductForm({
   function getProductInput(): ProductInput {
     return {
       name: name.trim(),
-      brand: brand.trim() || null,
-      manufacturer: manufacturer.trim() || null,
       unit: unit.trim() || null,
       category_id: categoryId || null,
       buy_price: buyPrice.trim() === "" ? null : Number(buyPrice),
@@ -117,7 +113,7 @@ export default function ProductForm({
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Field label="Product Name *" hint="Includes brand (e.g. Jack 'n Jill Chippy Barbeque)">
+            <Field label="Product Name *" hint="Full product name (e.g. Jack 'n Jill Chippy Barbeque, Efficascent Liniment Oil)">
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -127,25 +123,6 @@ export default function ProductForm({
                 required
               />
             </Field>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="Brand" hint="e.g. Chippy, Efficascent, Bear Brand">
-                <input
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  className="input"
-                  placeholder="e.g. Chippy, Piattos, Efficascent"
-                />
-              </Field>
-              <Field label="Manufacturer / Company" hint="e.g. URC, IPI, Nestlé">
-                <input
-                  value={manufacturer}
-                  onChange={(e) => setManufacturer(e.target.value)}
-                  className="input"
-                  placeholder="e.g. Universal Robina Corp., IPI"
-                />
-              </Field>
-            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Size / Unit" hint="e.g. 27g, 40g, 25ml, Sachet">

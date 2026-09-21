@@ -277,9 +277,6 @@ export default function ProductPriceListPDF({
                 >
                   <View style={styles.cellItem}>
                     <Text style={styles.itemName}>
-                      {item.brand && (
-                        <Text style={styles.brandPrefix}>{item.brand} - </Text>
-                      )}
                       {item.name}
                       {item.unit && (
                         <Text style={styles.sizeTag}> ({item.unit})</Text>

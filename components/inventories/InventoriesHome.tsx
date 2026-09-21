@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createInventory, joinInventory } from "@/app/(dashboard)/actions";
@@ -15,7 +16,9 @@ type InventoryCard = {
 
 export default function InventoriesHome({ inventories }: { inventories: InventoryCard[] }) {
   const router = useRouter();
-  const [panel, setPanel] = useState<"none" | "create" | "join">("none");
+  const [mounted, setMounted] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"create" | "join">("create");
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +27,20 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
   // State for securely revealing invite codes per store
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setModalOpen(false);
+    }
+    if (modalOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [modalOpen]);
 
   function toggleReveal(id: string, e: React.MouseEvent) {
     e.preventDefault();
@@ -58,6 +75,8 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
       setError(result.error ?? "Could not create the inventory.");
       return;
     }
+    setModalOpen(false);
+    setName("");
     router.push(`/inventories/${result.inventory.id}`);
   }
 
@@ -75,6 +94,8 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
       setError(result.error ?? "Could not join that inventory.");
       return;
     }
+    setModalOpen(false);
+    setCode("");
     router.push(`/inventories/${result.inventory.id}`);
   }
 
@@ -107,104 +128,22 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
 
           <div className="flex items-center gap-3 shrink-0">
             <button
+              type="button"
               onClick={() => {
-                setPanel(panel === "join" ? "none" : "join");
+                setActiveTab("create");
                 setError(null);
+                setModalOpen(true);
               }}
-              className="btn bg-white/15 text-white hover:bg-white/25 border border-white/25 text-xs sm:text-sm font-bold backdrop-blur-md shadow-xs cursor-pointer"
-            >
-              <svg className="w-4 h-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Join with Code</span>
-            </button>
-            <button
-              onClick={() => {
-                setPanel(panel === "create" ? "none" : "create");
-                setError(null);
-              }}
-              className="btn bg-white text-[#0f472b] hover:bg-emerald-50 hover:text-[#0b3822] text-xs sm:text-sm font-black shadow-md border-0 cursor-pointer"
+              className="btn bg-white text-[#0f472b] hover:bg-emerald-50 hover:text-[#0b3822] text-xs sm:text-sm font-black shadow-md border-0 cursor-pointer inline-flex items-center gap-2"
             >
               <svg className="w-4 h-4 text-[#1a7949]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              <span>+ New Store</span>
+              <span>New Inventory</span>
             </button>
           </div>
         </div>
       </div>
-
-      {/* Expandable Action Drawers */}
-      {panel === "create" && (
-        <div className="card p-6 bg-gradient-to-br from-white via-[#f7fbf8] to-[#eef7f2] border-emerald-300 shadow-xl animate-scale-up max-w-xl">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-extrabold text-stone-900 text-base flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a7949] text-white text-sm font-bold shadow-xs">
-                +
-              </span>
-              Create New Store Inventory
-            </h3>
-            <button
-              onClick={() => setPanel("none")}
-              className="text-stone-400 hover:text-stone-600 text-xs font-bold px-2 py-1 rounded-md hover:bg-stone-100"
-            >
-              Close ✕
-            </button>
-          </div>
-          <p className="mb-4 text-xs text-stone-600 font-medium">
-            Give your store a descriptive title (e.g., &ldquo;Cabatingan Sari-Sari Store&rdquo;, &ldquo;Branch 2 - Poblacion&rdquo;).
-          </p>
-          <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-2.5">
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Aling Nena's Sari-Sari Store"
-              className="input flex-1 font-medium"
-              autoFocus
-            />
-            <button type="submit" disabled={loading} className="btn btn-primary shrink-0">
-              {loading ? "Creating Store..." : "Create Store"}
-            </button>
-          </form>
-          {error && <p className="mt-2 text-xs font-bold text-[#782d2d]">{error}</p>}
-        </div>
-      )}
-
-      {panel === "join" && (
-        <div className="card p-6 bg-gradient-to-br from-white via-[#f7fbf8] to-[#eef7f2] border-emerald-300 shadow-xl animate-scale-up max-w-xl">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-extrabold text-stone-900 text-base flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a7949] text-white text-sm font-bold shadow-xs">
-                #
-              </span>
-              Join Store by Secret Invite Code
-            </h3>
-            <button
-              onClick={() => setPanel("none")}
-              className="text-stone-400 hover:text-stone-600 text-xs font-bold px-2 py-1 rounded-md hover:bg-stone-100"
-            >
-              Close ✕
-            </button>
-          </div>
-          <p className="mb-4 text-xs text-stone-600 font-medium">
-            Enter the 8-character invite code provided by the store owner to access their catalog.
-          </p>
-          <form onSubmit={handleJoin} className="flex flex-col sm:flex-row gap-2.5">
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="e.g. FE40CF1E"
-              className="input font-mono tracking-widest text-center uppercase font-black sm:max-w-[200px]"
-              maxLength={8}
-              autoFocus
-            />
-            <button type="submit" disabled={loading} className="btn btn-primary shrink-0 flex-1">
-              {loading ? "Joining..." : "Join Inventory"}
-            </button>
-          </form>
-          {error && <p className="mt-2 text-xs font-bold text-[#782d2d]">{error}</p>}
-        </div>
-      )}
 
       {/* SECTION 1: MY INVENTORIES (OWNER) */}
       <section className="space-y-4">
@@ -235,9 +174,16 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
         {ownedStores.length === 0 ? (
           <div className="card p-8 text-center border-dashed border-2 border-stone-200 bg-stone-50/50 rounded-2xl">
             <p className="text-sm font-semibold text-stone-600">You haven&apos;t created any store inventories yet.</p>
-            <p className="text-xs text-stone-400 mt-1">Create your first store to begin adding products and tracking prices.</p>
-            <button onClick={() => setPanel("create")} className="btn btn-primary mt-4 text-xs font-bold">
-              + Create Store Now
+            <p className="text-xs text-stone-400 mt-1">Create your first inventory to begin adding products and tracking prices.</p>
+            <button
+              onClick={() => {
+                setActiveTab("create");
+                setError(null);
+                setModalOpen(true);
+              }}
+              className="btn btn-primary mt-4 text-xs font-bold"
+            >
+              + Create Inventory Now
             </button>
           </div>
         ) : (
@@ -381,8 +327,15 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
                 </p>
               </div>
             </div>
-            <button onClick={() => setPanel("join")} className="btn btn-secondary shrink-0 text-xs font-bold">
-              Join Store with Code
+            <button
+              onClick={() => {
+                setActiveTab("join");
+                setError(null);
+                setModalOpen(true);
+              }}
+              className="btn btn-secondary shrink-0 text-xs font-bold"
+            >
+              Join Inventory with Code
             </button>
           </div>
         ) : (
@@ -429,6 +382,213 @@ export default function InventoriesHome({ inventories }: { inventories: Inventor
           </div>
         )}
       </section>
+
+      {/* Floating Circular '+' Action Button (Bottom-Left, mirroring AI Copilot on bottom-right) */}
+      <button
+        type="button"
+        onClick={() => {
+          setError(null);
+          setModalOpen((prev) => !prev);
+        }}
+        className="fixed bottom-6 left-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#0c4024] via-[#145d35] to-[#1f8c53] text-white shadow-[0_10px_30px_rgba(26,121,73,0.5)] border-2 border-emerald-300/70 transition-all duration-300 hover:scale-110 hover:shadow-[0_14px_40px_rgba(26,121,73,0.65)] active:scale-95 cursor-pointer"
+        title={modalOpen ? "Close Menu" : "New Inventory or Join"}
+        aria-label="New Inventory or Join"
+      >
+        {modalOpen ? (
+          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        )}
+      </button>
+
+      {/* Segmented Popup Modal for New Inventory / Join */}
+      {mounted &&
+        modalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-fade-in">
+            <div
+              className="absolute inset-0"
+              onClick={() => {
+                setModalOpen(false);
+                setError(null);
+              }}
+            />
+
+            <div className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-emerald-100 animate-scale-up">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eaf6ee] text-[#1a7949]">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-stone-900 font-heading">
+                      {activeTab === "create" ? "New Inventory" : "Join Inventory"}
+                    </h2>
+                    <p className="text-xs text-stone-400">
+                      {activeTab === "create"
+                        ? "Create a new store catalog"
+                        : "Enter code to collaborate on a catalog"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalOpen(false);
+                    setError(null);
+                  }}
+                  className="rounded-xl p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-700 transition-colors cursor-pointer"
+                  title="Close"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Animated Segmented Switcher */}
+              <div className="relative mb-6 flex rounded-xl bg-stone-100 p-1.5 text-sm font-bold border border-stone-200/60 select-none">
+                <div
+                  className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] rounded-lg bg-white shadow-md transition-all duration-300 ease-out border border-stone-200/80 ${
+                    activeTab === "create" ? "left-1.5" : "left-[calc(50%+3px)]"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("create");
+                    setError(null);
+                  }}
+                  className={`relative z-10 flex-1 py-2 text-center text-xs font-bold transition-colors cursor-pointer ${
+                    activeTab === "create" ? "text-[#1a7949]" : "text-stone-500 hover:text-stone-800"
+                  }`}
+                >
+                  New Inventory
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("join");
+                    setError(null);
+                  }}
+                  className={`relative z-10 flex-1 py-2 text-center text-xs font-bold transition-colors cursor-pointer ${
+                    activeTab === "join" ? "text-[#1a7949]" : "text-stone-500 hover:text-stone-800"
+                  }`}
+                >
+                  Join with Code
+                </button>
+              </div>
+
+              {/* Tab Form */}
+              {activeTab === "create" ? (
+                <form onSubmit={handleCreate} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                      Inventory Name
+                    </label>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Aling Nena's Sari-Sari Store"
+                      className="input w-full font-medium"
+                      autoFocus
+                      required
+                    />
+                    <p className="mt-1.5 text-[11px] text-stone-400">
+                      You will be the owner with full privileges to manage stock, invite staff, and export price lists.
+                    </p>
+                  </div>
+
+                  {error && (
+                    <div className="rounded-xl border border-red-200 bg-[#fdf2f2] p-3 text-xs text-[#782d2d] font-semibold flex items-center gap-2">
+                      <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{error}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-end gap-2.5 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalOpen(false);
+                        setError(null);
+                      }}
+                      className="btn btn-secondary text-xs"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading || !name.trim()}
+                      className="btn btn-primary text-xs font-bold py-2.5 px-5"
+                    >
+                      {loading ? "Creating Inventory..." : "Create Inventory"}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleJoin} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                      8-Character Invite Code
+                    </label>
+                    <input
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.toUpperCase())}
+                      placeholder="e.g. FE40CF1E"
+                      className="input w-full font-mono tracking-widest text-center uppercase font-black text-sm"
+                      maxLength={8}
+                      autoFocus
+                      required
+                    />
+                    <p className="mt-1.5 text-[11px] text-stone-400">
+                      Enter the 8-character invite code provided by the inventory owner to access their catalog.
+                    </p>
+                  </div>
+
+                  {error && (
+                    <div className="rounded-xl border border-red-200 bg-[#fdf2f2] p-3 text-xs text-[#782d2d] font-semibold flex items-center gap-2">
+                      <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{error}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-end gap-2.5 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalOpen(false);
+                        setError(null);
+                      }}
+                      className="btn btn-secondary text-xs"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading || !code.trim()}
+                      className="btn btn-primary text-xs font-bold py-2.5 px-5"
+                    >
+                      {loading ? "Joining..." : "Join Inventory"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
