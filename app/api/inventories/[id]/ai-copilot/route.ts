@@ -1,6 +1,71 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+async function tryGeminiAnalysis(prompt: string, products: any[], categories: any[]) {
+  const apiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+  if (!apiKey) return null;
+
+  try {
+    const compactCatalog = products
+      .filter((p: any) => !p.archived)
+      .slice(0, 150)
+      .map((p: any) => ({
+        name: p.name,
+        brand: p.brand || undefined,
+        unit: p.unit || undefined,
+        price: p.selling_price,
+        stock: p.quantity,
+        category:
+          Array.isArray(p.categories) ? p.categories[0]?.name : p.categories?.name || "Uncategorized",
+      }));
+
+    const systemPrompt = `You are SariSmart AI, an intelligent, helpful store assistant for a Philippine sari-sari store.
+Answer the store owner's query accurately using the provided store catalog and category data.
+Guidelines:
+- Never use markdown bold asterisks (**) in your output.
+- Keep answers practical, clear, concise, and friendly.
+- Format prices in Philippine Pesos (₱).`;
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `${systemPrompt}\n\nCategories: ${categories.map((c: any) => c.name).join(", ")}\n\nCatalog (${compactCatalog.length} active items):\n${JSON.stringify(compactCatalog)}\n\nOwner Question: ${prompt}`,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 600,
+          },
+        }),
+      }
+    );
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (text) {
+      return text.replace(/\*\*/g, "").trim();
+    }
+  } catch (err) {
+    console.error("Gemini API call failed:", err);
+  }
+  return null;
+}
+
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -392,10 +457,231 @@ export async function POST(
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 8. INTENT: CATEGORY QUERY
+    // 8. INTENT: ALL CATEGORIES OVERVIEW & PRODUCT BREAKDOWN
+    // e.g. "list all categories, and how many products in each", "categories", "how many categories"
+    // ─────────────────────────────────────────────────────────────
+    const isCategoryOverviewQuery =
+      (lower.includes("categor") || lower.includes("kategorya")) &&
+      (lower.includes("all") ||
+        lower.includes("list") ||
+        lower.includes("show") ||
+        lower.includes("each") ||
+        lower.includes("how many") ||
+        lower.includes("ilan") ||
+        lower.includes("what are") ||
+        lower.includes("breakdown") ||
+        lower.includes("summary") ||
+        lower.includes("count") ||
+        lower.includes("view") ||
+        lower.includes("exist") ||
+        lower.includes("available") ||
+        lower.trim() === "categories" ||
+        lower.trim() === "category" ||
+        lower.trim() === "list categories" ||
+        lower.trim() === "all categories");
+
+    // Check if user specifically named an individual category
+    const specificCategoryTarget = allCategories.find((cat: any) => {
+      const catLower = (cat.name || "").toLowerCase();
+      return catLower.length > 2 && lower.includes(catLower);
+    });
+
+    const isExplicitlyGeneral =
+      lower.includes("each") ||
+      lower.includes("all categories") ||
+      lower.includes("list all categories") ||
+      lower.includes("how many products in each") ||
+      lower.includes("and how many") ||
+      lower.includes("breakdown") ||
+      lower.includes("summary") ||
+      !specificCategoryTarget;
+
+    if (isCategoryOverviewQuery && isExplicitlyGeneral) {
+      const categoryMap = new Map<string, { name: string; count: number; totalQty: number }>();
+      allCategories.forEach((cat: any) => {
+        categoryMap.set(cat.id, { name: cat.name, count: 0, totalQty: 0 });
+      });
+
+      let uncategorizedCount = 0;
+      let uncategorizedQty = 0;
+      let totalActive = 0;
+      let totalUnits = 0;
+
+      allProducts.forEach((p: any) => {
+        if (p.archived) return;
+        totalActive++;
+        totalUnits += p.quantity || 0;
+
+        if (p.category_id && categoryMap.has(p.category_id)) {
+          const entry = categoryMap.get(p.category_id)!;
+          entry.count++;
+          entry.totalQty += p.quantity || 0;
+        } else {
+          uncategorizedCount++;
+          uncategorizedQty += p.quantity || 0;
+        }
+      });
+
+      const sortedCategories = Array.from(categoryMap.values()).sort(
+        (a, b) => b.count - a.count
+      );
+
+      let reply = `Here is the breakdown of all store categories and product counts:\n\n`;
+      sortedCategories.forEach((cat, idx) => {
+        reply += `${idx + 1}. ${cat.name} — ${cat.count} product${cat.count === 1 ? "" : "s"} (${cat.totalQty} units in stock)\n`;
+      });
+
+      if (uncategorizedCount > 0) {
+        reply += `• Uncategorized — ${uncategorizedCount} product${uncategorizedCount === 1 ? "" : "s"} (${uncategorizedQty} units in stock)\n`;
+      }
+
+      reply += `\nTotal: ${allCategories.length} categories | ${totalActive} active products (${totalUnits} total units in stock).`;
+
+      return NextResponse.json({
+        reply,
+        actionTaken: "query",
+        items: [],
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 9. INTENT: STORE INVENTORY OVERVIEW / SUMMARY
+    // e.g. "inventory summary", "store summary", "total products", "total stock", "store stats"
+    // ─────────────────────────────────────────────────────────────
+    if (
+      lower.includes("inventory summary") ||
+      lower.includes("store summary") ||
+      lower.includes("total products") ||
+      lower.includes("total items") ||
+      lower.includes("total stock") ||
+      lower.includes("total inventory") ||
+      lower.includes("total value") ||
+      lower.includes("store stats") ||
+      lower.includes("how many products in total") ||
+      lower.includes("how many items in total") ||
+      lower.includes("kabuuang produkto")
+    ) {
+      const activeProds = allProducts.filter((p: any) => !p.archived);
+      const totalStock = activeProds.reduce((sum: number, p: any) => sum + (p.quantity || 0), 0);
+      const totalRetailVal = activeProds.reduce(
+        (sum: number, p: any) => sum + (p.quantity || 0) * (p.selling_price || 0),
+        0
+      );
+      const lowStockCount = activeProds.filter((p: any) => (p.quantity || 0) <= 5).length;
+      const outOfStockCount = activeProds.filter((p: any) => (p.quantity || 0) === 0).length;
+      const unpricedCount = activeProds.filter((p: any) => p.selling_price === null).length;
+
+      let reply = `Store Inventory Summary:\n\n`;
+      reply += `• Active Products: ${activeProds.length} items\n`;
+      reply += `• Total Stock on Hand: ${totalStock} units\n`;
+      reply += `• Estimated Catalog Value: ₱${totalRetailVal.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
+      reply += `• Categories: ${allCategories.length} categories configured\n`;
+      if (outOfStockCount > 0) reply += `• Out of Stock: ${outOfStockCount} items (0 units left)\n`;
+      if (lowStockCount > 0) reply += `• Low Stock Alert: ${lowStockCount} items (5 or fewer units)\n`;
+      if (unpricedCount > 0) reply += `• Missing Prices: ${unpricedCount} items missing selling price\n`;
+
+      return NextResponse.json({
+        reply,
+        actionTaken: "query",
+        items: activeProds.slice(0, 5),
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 10. INTENT: PRICE & STOCK EXTREMES (MOST EXPENSIVE, CHEAPEST, HIGHEST STOCK)
+    // ─────────────────────────────────────────────────────────────
+    if (
+      lower.includes("most expensive") ||
+      lower.includes("highest price") ||
+      lower.includes("pinakamahal")
+    ) {
+      const priced = allProducts
+        .filter((p: any) => !p.archived && p.selling_price !== null)
+        .sort((a: any, b: any) => (b.selling_price || 0) - (a.selling_price || 0));
+
+      if (priced.length === 0) {
+        return NextResponse.json({
+          reply: "No priced products found in inventory.",
+          actionTaken: "query",
+          items: [],
+        });
+      }
+
+      let reply = `Top most expensive products in your store:\n\n`;
+      priced.slice(0, 5).forEach((p: any, idx: number) => {
+        const brandStr = p.brand ? `[${p.brand}] ` : "";
+        const unitStr = p.unit ? ` (${p.unit})` : "";
+        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ₱${(p.selling_price || 0).toFixed(2)} (${p.quantity} in stock)\n`;
+      });
+
+      return NextResponse.json({
+        reply,
+        actionTaken: "query",
+        items: priced.slice(0, 5),
+      });
+    }
+
+    if (
+      lower.includes("cheapest") ||
+      lower.includes("lowest price") ||
+      lower.includes("pinakamura")
+    ) {
+      const priced = allProducts
+        .filter((p: any) => !p.archived && p.selling_price !== null && p.selling_price > 0)
+        .sort((a: any, b: any) => (a.selling_price || 0) - (b.selling_price || 0));
+
+      if (priced.length === 0) {
+        return NextResponse.json({
+          reply: "No priced products found in inventory.",
+          actionTaken: "query",
+          items: [],
+        });
+      }
+
+      let reply = `Cheapest products in your store:\n\n`;
+      priced.slice(0, 5).forEach((p: any, idx: number) => {
+        const brandStr = p.brand ? `[${p.brand}] ` : "";
+        const unitStr = p.unit ? ` (${p.unit})` : "";
+        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ₱${(p.selling_price || 0).toFixed(2)} (${p.quantity} in stock)\n`;
+      });
+
+      return NextResponse.json({
+        reply,
+        actionTaken: "query",
+        items: priced.slice(0, 5),
+      });
+    }
+
+    if (
+      lower.includes("most stock") ||
+      lower.includes("highest stock") ||
+      lower.includes("highest quantity") ||
+      lower.includes("pinakamarami")
+    ) {
+      const sortedStock = allProducts
+        .filter((p: any) => !p.archived)
+        .sort((a: any, b: any) => (b.quantity || 0) - (a.quantity || 0));
+
+      let reply = `Products with the highest stock on hand:\n\n`;
+      sortedStock.slice(0, 5).forEach((p: any, idx: number) => {
+        const brandStr = p.brand ? `[${p.brand}] ` : "";
+        const unitStr = p.unit ? ` (${p.unit})` : "";
+        const priceStr = p.selling_price !== null ? `₱${p.selling_price.toFixed(2)}` : "Price TBD";
+        reply += `${idx + 1}. ${brandStr}${p.name}${unitStr} — ${p.quantity} units | ${priceStr}\n`;
+      });
+
+      return NextResponse.json({
+        reply,
+        actionTaken: "query",
+        items: sortedStock.slice(0, 5),
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 11. INTENT: SPECIFIC SINGLE CATEGORY QUERY
     // e.g. "Show me all Canned Goods", "list beverages", "what candy items do we have"
     // ─────────────────────────────────────────────────────────────
-    const matchedCategory = allCategories.find((cat: any) => {
+    const matchedCategory = specificCategoryTarget || allCategories.find((cat: any) => {
       const catLower = (cat.name || "").toLowerCase();
       if (lower.includes(catLower)) return true;
       const words = catLower.split(/[\s&,/]+/).filter((w: string) => w.length > 2);
@@ -413,7 +699,9 @@ export async function POST(
         lower.includes("drinks") ||
         lower.includes("goods") ||
         lower.includes("what") ||
-        lower.includes("anong"))
+        lower.includes("anong") ||
+        lower.includes("products") ||
+        lower.includes("items"))
     ) {
       const categoryProducts = allProducts.filter(
         (p: any) => !p.archived && p.category_id === matchedCategory.id
@@ -446,7 +734,7 @@ export async function POST(
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 9. INTENT: SPECIFIC PRODUCT / BRAND STOCK & PRICE INQUIRY
+    // 12. INTENT: SPECIFIC PRODUCT / BRAND STOCK & PRICE INQUIRY
     // e.g. "how many bear brand are remaining?", "price of coke", "ilan ang marlboro"
     // ─────────────────────────────────────────────────────────────
     // Clean query keywords
@@ -497,9 +785,26 @@ export async function POST(
       });
     }
 
-    // Default Fallback
+    // ─────────────────────────────────────────────────────────────
+    // 13. GEMINI AI FALLBACK (IF API KEY CONFIGURED)
+    // ─────────────────────────────────────────────────────────────
+    const geminiReply = await tryGeminiAnalysis(prompt, allProducts, allCategories);
+    if (geminiReply) {
+      return NextResponse.json({
+        reply: geminiReply,
+        actionTaken: "query",
+        items: [],
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 14. DYNAMIC CONTEXTUAL FALLBACK
+    // ─────────────────────────────────────────────────────────────
+    const activeCount = allProducts.filter((p: any) => !p.archived).length;
+    const categorySample = allCategories.slice(0, 4).map((c: any) => c.name).join(", ");
+
     return NextResponse.json({
-      reply: `I couldn't find any products matching "${cleanQuery}". You can ask me:\n• "Tell me items with low stock"\n• "Show me all Canned Goods"\n• "How many Bear Brand are remaining?"\n• "Update price of Coke Mismo to 20"\n• "Add product Great Taste White price 15 stock 30"`,
+      reply: `I couldn't find any products or actions matching "${cleanQuery}".\n\nYour store currently has ${activeCount} products across ${allCategories.length} categories${categorySample ? ` (such as ${categorySample})` : ""}.\n\nTry asking me:\n• "List all categories, and how many products in each"\n• "Tell me items with low stock"\n• "Inventory summary"\n• "Show most expensive items"\n• "Update price of Coke Mismo to 20"\n• "Add product Marlboro Red price 120 stock 10 unit pack"`,
       actionTaken: "general",
     });
   } catch (err: unknown) {

@@ -22,12 +22,15 @@ type Message = {
 };
 
 const SUGGESTIONS = [
-  "How many bear brand are remaining?",
+  "List all categories, and how many products in each",
   "Tell me items with low stock",
+  "Inventory summary",
+  "Show me all Canned Goods",
+  "How many bear brand are remaining?",
+  "Show most expensive items",
   "Update price of Coke Mismo to 20",
   "Add product Marlboro Red price 120 stock 10 unit pack",
   "Extract sizes from product names",
-  "Show me all Canned Goods",
 ];
 
 export default function AICopilotDrawer({ inventoryId }: { inventoryId: string }) {
