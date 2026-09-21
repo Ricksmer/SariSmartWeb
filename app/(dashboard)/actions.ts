@@ -70,9 +70,27 @@ export async function createCategory(inventoryId: string, name: string) {
   return { error: null };
 }
 
+export async function updateCategory(inventoryId: string, id: string, name: string) {
+  const { supabase } = await requireUser();
+  if (!name.trim()) return { error: "Category name cannot be empty." };
+  const { error } = await supabase
+    .from("categories")
+    .update({ name: toTitleCase(name) })
+    .eq("id", id)
+    .eq("inventory_id", inventoryId);
+  if (error) return { error: error.message };
+  revalidatePath(`/inventories/${inventoryId}/categories`);
+  revalidatePath(`/inventories/${inventoryId}/products`);
+  return { error: null };
+}
+
 export async function deleteCategory(inventoryId: string, id: string) {
   const { supabase } = await requireUser();
-  const { error } = await supabase.from("categories").delete().eq("id", id);
+  const { error } = await supabase
+    .from("categories")
+    .delete()
+    .eq("id", id)
+    .eq("inventory_id", inventoryId);
   if (error) return { error: error.message };
   revalidatePath(`/inventories/${inventoryId}/categories`);
   revalidatePath(`/inventories/${inventoryId}/products`);

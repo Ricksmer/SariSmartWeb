@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Category, Product } from "@/lib/types";
 import { createProduct, updateProduct, type ProductInput } from "@/app/(dashboard)/actions";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export default function ProductForm({
   inventoryId,
@@ -25,8 +26,39 @@ export default function ProductForm({
   const [remarks, setRemarks] = useState(product?.remarks ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showConfirmUpdate, setShowConfirmUpdate] = useState(false);
 
   const noSellingPrice = sellingPrice.trim() === "";
+
+  function getProductInput(): ProductInput {
+    return {
+      name: name.trim(),
+      brand: brand.trim() || null,
+      unit: unit.trim() || null,
+      category_id: categoryId || null,
+      buy_price: buyPrice.trim() === "" ? null : Number(buyPrice),
+      selling_price: sellingPrice.trim() === "" ? null : Number(sellingPrice),
+      quantity: quantity.trim() === "" ? 0 : Number(quantity),
+      remarks: remarks.trim() || null,
+    };
+  }
+
+  async function executeSave() {
+    const input = getProductInput();
+    setSaving(true);
+    const result = product
+      ? await updateProduct(inventoryId, product.id, input)
+      : await createProduct(inventoryId, input);
+    setSaving(false);
+
+    if (result.error) {
+      setError(result.error);
+      setShowConfirmUpdate(false);
+      return;
+    }
+    setShowConfirmUpdate(false);
+    onClose();
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,28 +69,13 @@ export default function ProductForm({
       return;
     }
 
-    const input: ProductInput = {
-      name,
-      brand: brand.trim() || null,
-      unit: unit.trim() || null,
-      category_id: categoryId || null,
-      buy_price: buyPrice.trim() === "" ? null : Number(buyPrice),
-      selling_price: sellingPrice.trim() === "" ? null : Number(sellingPrice),
-      quantity: quantity.trim() === "" ? 0 : Number(quantity),
-      remarks: remarks.trim() || null,
-    };
-
-    setSaving(true);
-    const result = product
-      ? await updateProduct(inventoryId, product.id, input)
-      : await createProduct(inventoryId, input);
-    setSaving(false);
-
-    if (result.error) {
-      setError(result.error);
+    if (product) {
+      // Require confirmation for updating existing record
+      setShowConfirmUpdate(true);
       return;
     }
-    onClose();
+
+    await executeSave();
   }
 
   return (
@@ -213,6 +230,23 @@ export default function ProductForm({
           </form>
         </div>
       </div>
+
+      {/* ── Confirmation Modal: Update Product ── */}
+      <ConfirmModal
+        open={showConfirmUpdate}
+        title={`Update product "${name}"?`}
+        description={
+          <span>
+            Save the updated information for <strong>&quot;{name}&quot;</strong> (selling price: {sellingPrice ? `₱${Number(sellingPrice).toFixed(2)}` : "None"}, stock: {quantity} units) to your store catalog?
+          </span>
+        }
+        confirmLabel="Update"
+        cancelLabel="Cancel"
+        variant="primary"
+        loading={saving}
+        onConfirm={executeSave}
+        onCancel={() => setShowConfirmUpdate(false)}
+      />
     </div>
   );
 }

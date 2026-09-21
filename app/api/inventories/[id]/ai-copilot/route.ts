@@ -122,16 +122,46 @@ export async function POST(
     const allCategories = categories || [];
 
     const lower = prompt.toLowerCase();
+    let isConfirmed = body.confirmed === true;
+    let activePrompt = prompt;
+
+    if (
+      lower.startsWith("confirm ") ||
+      lower.startsWith("yes ") ||
+      lower.startsWith("oo ") ||
+      lower === "confirm" ||
+      lower === "yes" ||
+      lower === "oo"
+    ) {
+      isConfirmed = true;
+      activePrompt = prompt.replace(/^(confirm|yes|oo)\s*/i, "").trim();
+    }
+
+    const cleanLower = activePrompt.toLowerCase();
 
     // ─────────────────────────────────────────────────────────────
     // 1. INTENT: CLEAN DATA / EXTRACT SIZES FROM NAMES
     // ─────────────────────────────────────────────────────────────
     if (
-      lower.includes("clean") ||
-      (lower.includes("extract") && (lower.includes("size") || lower.includes("unit"))) ||
-      lower.includes("format size") ||
-      lower.includes("separate unit")
+      cleanLower.includes("clean") ||
+      (cleanLower.includes("extract") && (cleanLower.includes("size") || cleanLower.includes("unit"))) ||
+      cleanLower.includes("format size") ||
+      cleanLower.includes("separate unit")
     ) {
+      if (!isConfirmed) {
+        return NextResponse.json({
+          reply: 'Extract and format size units from product names across your catalog? Extract and Cancel',
+          actionTaken: "pending_confirmation",
+          confirmation: {
+            type: "clean",
+            title: "Extract size units from product names?",
+            description: "Automatically separate sizes (e.g. 375ml, 1kg) into the dedicated unit column.",
+            confirmLabel: "Extract",
+            command: "confirm clean data",
+          },
+        });
+      }
+
       let cleanedCount = 0;
       const updatedSample: string[] = [];
 
@@ -172,9 +202,9 @@ export async function POST(
     // 2. INTENT: UPDATE PRICE
     // e.g. "update price of Coke to 20" or "set price of bear brand to 16"
     // ─────────────────────────────────────────────────────────────
-    const priceUpdateMatch = lower.match(
+    const priceUpdateMatch = cleanLower.match(
       /(?:update|change|set|edit)\s+(?:the\s+)?price\s+of\s+([a-zA-Z0-9\s\.\-&]+?)\s+(?:to|as|into|=)\s*(?:₱|p)?\s*(\d+(?:\.\d+)?)/i
-    ) || lower.match(
+    ) || cleanLower.match(
       /(?:gawin mong|gawing|set|update)\s*(?:₱|p)?\s*(\d+(?:\.\d+)?)\s*(?:ang\s+)?(?:presyo\s+ng|price\s+of)\s+([a-zA-Z0-9\s\.\-&]+)/i
     );
 
@@ -192,7 +222,7 @@ export async function POST(
 
       // Match product
       const matchedProduct = allProducts.find(
-        (p) =>
+        (p: any) =>
           p.name.toLowerCase().includes(targetName.toLowerCase()) ||
           (p.brand && p.brand.toLowerCase().includes(targetName.toLowerCase()))
       );
@@ -201,6 +231,21 @@ export async function POST(
         return NextResponse.json({
           reply: `I couldn't find any product matching "${targetName}". Please check the spelling or add it first.`,
           actionTaken: "none",
+        });
+      }
+
+      if (!isConfirmed) {
+        return NextResponse.json({
+          reply: `Update price of "${matchedProduct.name}" to ₱${newPrice.toFixed(2)}? Update and Cancel`,
+          actionTaken: "pending_confirmation",
+          confirmation: {
+            type: "update_price",
+            title: `Update price of "${matchedProduct.name}"?`,
+            description: `Change price from ₱${(matchedProduct.selling_price ?? 0).toFixed(2)} to ₱${newPrice.toFixed(2)}.`,
+            confirmLabel: "Update",
+            command: `confirm update price of ${matchedProduct.name} to ${newPrice}`,
+          },
+          items: [{ ...matchedProduct, selling_price: newPrice }],
         });
       }
 
@@ -221,9 +266,9 @@ export async function POST(
     // 3. INTENT: UPDATE STOCK / QUANTITY
     // e.g. "update stock of Coke to 50" or "set quantity of bear brand to 24"
     // ─────────────────────────────────────────────────────────────
-    const stockUpdateMatch = lower.match(
+    const stockUpdateMatch = cleanLower.match(
       /(?:update|change|set|add to|restock)\s+(?:the\s+)?(?:stock|qty|quantity)\s+of\s+([a-zA-Z0-9\s\.\-&]+?)\s+(?:to|as|into|=)\s*(\d+)/i
-    ) || lower.match(
+    ) || cleanLower.match(
       /(?:set|update)\s+([a-zA-Z0-9\s\.\-&]+?)\s+stock\s+(?:to|=)\s*(\d+)/i
     );
 
@@ -232,7 +277,7 @@ export async function POST(
       const newQty = parseInt(stockUpdateMatch[2], 10);
 
       const matchedProduct = allProducts.find(
-        (p) =>
+        (p: any) =>
           p.name.toLowerCase().includes(targetName.toLowerCase()) ||
           (p.brand && p.brand.toLowerCase().includes(targetName.toLowerCase()))
       );
@@ -241,6 +286,21 @@ export async function POST(
         return NextResponse.json({
           reply: `I couldn't find any product matching "${targetName}" to update stock.`,
           actionTaken: "none",
+        });
+      }
+
+      if (!isConfirmed) {
+        return NextResponse.json({
+          reply: `Update stock of "${matchedProduct.name}" to ${newQty} units? Update and Cancel`,
+          actionTaken: "pending_confirmation",
+          confirmation: {
+            type: "update_stock",
+            title: `Update stock of "${matchedProduct.name}"?`,
+            description: `Change inventory count from ${matchedProduct.quantity} to ${newQty} units.`,
+            confirmLabel: "Update",
+            command: `confirm update stock of ${matchedProduct.name} to ${newQty}`,
+          },
+          items: [{ ...matchedProduct, quantity: newQty }],
         });
       }
 
@@ -258,16 +318,66 @@ export async function POST(
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 4. INTENT: DELETE OR ARCHIVE PRODUCT
+    // 4. INTENT: DELETE CATEGORY
+    // e.g. "delete category Biscuits", "remove category snacks"
+    // ─────────────────────────────────────────────────────────────
+    if (
+      cleanLower.startsWith("delete category") ||
+      cleanLower.startsWith("remove category") ||
+      cleanLower.startsWith("alisin ang category")
+    ) {
+      const targetCatName = cleanLower
+        .replace(/^(delete|remove|alisin ang)\s+category\s+/i, "")
+        .trim();
+
+      const matchedCat = allCategories.find((c: any) =>
+        c.name.toLowerCase().includes(targetCatName)
+      );
+
+      if (!matchedCat) {
+        return NextResponse.json({
+          reply: `Could not find any category matching "${targetCatName}" to delete.`,
+          actionTaken: "none",
+        });
+      }
+
+      if (!isConfirmed) {
+        return NextResponse.json({
+          reply: `Delete category "${matchedCat.name}"? Delete and Cancel`,
+          actionTaken: "pending_confirmation",
+          confirmation: {
+            type: "delete_category",
+            title: `Delete category "${matchedCat.name}"?`,
+            description: `Products in "${matchedCat.name}" will become Uncategorized.`,
+            confirmLabel: "Delete",
+            command: `confirm delete category ${matchedCat.name}`,
+          },
+        });
+      }
+
+      await supabase
+        .from("categories")
+        .delete()
+        .eq("id", matchedCat.id)
+        .eq("inventory_id", inventoryId);
+
+      return NextResponse.json({
+        reply: `✓ Successfully deleted category "${matchedCat.name}". Any linked products are now Uncategorized.`,
+        actionTaken: "delete",
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 5. INTENT: DELETE OR ARCHIVE PRODUCT
     // e.g. "delete this diaper brand" or "delete EQ" or "archive product Coke"
     // ─────────────────────────────────────────────────────────────
-    if (lower.startsWith("delete") || lower.startsWith("alisin") || lower.startsWith("remove")) {
-      const targetName = lower
+    if (cleanLower.startsWith("delete") || cleanLower.startsWith("alisin") || cleanLower.startsWith("remove")) {
+      const targetName = cleanLower
         .replace(/^(delete|alisin|remove)\s+(this|the|product)?/i, "")
         .trim();
 
       const matchedProducts = allProducts.filter(
-        (p) =>
+        (p: any) =>
           p.name.toLowerCase().includes(targetName) ||
           (p.brand && p.brand.toLowerCase().includes(targetName))
       );
@@ -279,33 +389,38 @@ export async function POST(
         });
       }
 
-      if (matchedProducts.length === 1) {
+      if (!isConfirmed) {
         const item = matchedProducts[0];
-        await supabase.from("products").delete().eq("id", item.id).eq("inventory_id", inventoryId);
         return NextResponse.json({
-          reply: `✓ Permanently deleted ${item.name} from your store catalog.`,
-          actionTaken: "delete",
-          items: [item],
+          reply: `Delete product "${item.name}"? Delete and Cancel`,
+          actionTaken: "pending_confirmation",
+          confirmation: {
+            type: "delete",
+            title: `Delete product "${item.name}"?`,
+            description: `Permanently delete "${item.name}" from your catalog. This cannot be undone.`,
+            confirmLabel: "Delete",
+            command: `confirm delete ${item.name}`,
+          },
+          items: matchedProducts,
         });
       }
 
-      // If multiple match, delete them or ask
       for (const item of matchedProducts) {
         await supabase.from("products").delete().eq("id", item.id).eq("inventory_id", inventoryId);
       }
 
       return NextResponse.json({
-        reply: `✓ Deleted ${matchedProducts.length} items matching "${targetName}": ${matchedProducts.map((p) => p.name).join(", ")}.`,
+        reply: `✓ Deleted ${matchedProducts.length} item${matchedProducts.length === 1 ? "" : "s"} matching "${targetName}": ${matchedProducts.map((p: any) => p.name).join(", ")}.`,
         actionTaken: "delete",
         items: matchedProducts,
       });
     }
 
-    if (lower.startsWith("archive")) {
-      const targetName = lower.replace(/^archive\s+(the|product)?/i, "").trim();
+    if (cleanLower.startsWith("archive")) {
+      const targetName = cleanLower.replace(/^archive\s+(the|product)?/i, "").trim();
 
       const matchedProduct = allProducts.find(
-        (p) =>
+        (p: any) =>
           p.name.toLowerCase().includes(targetName) ||
           (p.brand && p.brand.toLowerCase().includes(targetName))
       );
@@ -314,6 +429,21 @@ export async function POST(
         return NextResponse.json({
           reply: `Could not find any product matching "${targetName}" to archive.`,
           actionTaken: "none",
+        });
+      }
+
+      if (!isConfirmed) {
+        return NextResponse.json({
+          reply: `Archive product "${matchedProduct.name}"? Archive and Cancel`,
+          actionTaken: "pending_confirmation",
+          confirmation: {
+            type: "archive",
+            title: `Archive product "${matchedProduct.name}"?`,
+            description: `It will no longer appear in active sales or the public price list.`,
+            confirmLabel: "Archive",
+            command: `confirm archive ${matchedProduct.name}`,
+          },
+          items: [{ ...matchedProduct, archived: true }],
         });
       }
 
@@ -331,17 +461,15 @@ export async function POST(
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 5. INTENT: ADD / CREATE PRODUCT
+    // 6. INTENT: ADD / CREATE PRODUCT
     // e.g. "add product Marlboro Red price 120 stock 20 unit pack"
     // ─────────────────────────────────────────────────────────────
-    if (lower.startsWith("add") || lower.startsWith("create") || lower.startsWith("magdagdag")) {
-      // Simple regex extraction for name, price, stock, unit
-      const priceMatch = prompt.match(/price\s*(?:to|is|:|=)?\s*(?:₱|p)?\s*(\d+(?:\.\d+)?)/i);
-      const stockMatch = prompt.match(/(?:stock|qty|quantity)\s*(?:to|is|:|=)?\s*(\d+)/i);
-      const unitMatch = prompt.match(/(?:unit|size)\s*(?:to|is|:|=)?\s*([a-zA-Z0-9]+)/i);
+    if (cleanLower.startsWith("add") || cleanLower.startsWith("create") || cleanLower.startsWith("magdagdag")) {
+      const priceMatch = activePrompt.match(/price\s*(?:to|is|:|=)?\s*(?:₱|p)?\s*(\d+(?:\.\d+)?)/i);
+      const stockMatch = activePrompt.match(/(?:stock|qty|quantity)\s*(?:to|is|:|=)?\s*(\d+)/i);
+      const unitMatch = activePrompt.match(/(?:unit|size)\s*(?:to|is|:|=)?\s*([a-zA-Z0-9]+)/i);
 
-      // Clean name by removing keyword flags
-      let namePart = prompt
+      let namePart = activePrompt
         .replace(/^(add|create|magdagdag)\s+(product|item)?/i, "")
         .replace(/price\s*(?:to|is|:|=)?\s*(?:₱|p)?\s*(\d+(?:\.\d+)?)/i, "")
         .replace(/(?:stock|qty|quantity)\s*(?:to|is|:|=)?\s*(\d+)/i, "")
@@ -359,6 +487,20 @@ export async function POST(
       const newSellingPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
       const newQuantity = stockMatch ? parseInt(stockMatch[1], 10) : 0;
       const newUnit = unitMatch ? unitMatch[1] : null;
+
+      if (!isConfirmed) {
+        return NextResponse.json({
+          reply: `Add new product "${namePart}" (Price: ₱${(newSellingPrice ?? 0).toFixed(2)}, Stock: ${newQuantity}${newUnit ? ` ${newUnit}` : ""})? Add and Cancel`,
+          actionTaken: "pending_confirmation",
+          confirmation: {
+            type: "create",
+            title: `Add product "${namePart}"?`,
+            description: `Selling price: ₱${(newSellingPrice ?? 0).toFixed(2)}, Initial stock: ${newQuantity} units.`,
+            confirmLabel: "Add",
+            command: `confirm ${activePrompt}`,
+          },
+        });
+      }
 
       const { data: newProd, error: insertErr } = await supabase
         .from("products")

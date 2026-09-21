@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { renameInventory, leaveInventory } from "@/app/(dashboard)/actions";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 type Member = {
   user_id: string;
@@ -23,10 +24,13 @@ export default function InventorySettingsClient({
 }) {
   const [name, setName] = useState(inventory.name);
   const [saving, setSaving] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedPriceList, setCopiedPriceList] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmRename, setShowConfirmRename] = useState(false);
+  const [showConfirmLeave, setShowConfirmLeave] = useState(false);
 
   const joinLink =
     typeof window !== "undefined"
@@ -38,12 +42,26 @@ export default function InventorySettingsClient({
       ? `${window.location.origin}/price-list/${inventory.id}`
       : `/price-list/${inventory.id}`;
 
-  async function handleRename(e: React.FormEvent) {
+  function handleRenameSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!name.trim()) return;
+    if (name.trim() === inventory.name) return;
+    setShowConfirmRename(true);
+  }
+
+  async function confirmRename() {
     setSaving(true);
     const result = await renameInventory(inventory.id, name);
     setSaving(false);
+    setShowConfirmRename(false);
     if (result.error) setError(result.error);
+  }
+
+  async function confirmLeave() {
+    setLeaving(true);
+    await leaveInventory(inventory.id);
+    setLeaving(false);
+    setShowConfirmLeave(false);
   }
 
   function copy(text: string, which: "code" | "link" | "priceList") {
@@ -58,11 +76,6 @@ export default function InventorySettingsClient({
       setCopiedPriceList(true);
       setTimeout(() => setCopiedPriceList(false), 1800);
     }
-  }
-
-  async function handleLeave() {
-    if (!confirm("Are you sure you want to leave this inventory? You will need an invite code to rejoin.")) return;
-    await leaveInventory(inventory.id);
   }
 
   const mailtoHref = `mailto:?subject=${encodeURIComponent(
@@ -207,14 +220,14 @@ export default function InventorySettingsClient({
         <section className="card p-6 border-stone-200/90 shadow-sm bg-white">
           <h2 className="text-base font-bold text-stone-900 mb-1">Rename Store Inventory</h2>
           <p className="text-xs text-stone-400 mb-4">Change the display name of this retail location.</p>
-          <form onSubmit={handleRename} className="flex gap-2.5 max-w-md">
+          <form onSubmit={handleRenameSubmit} className="flex gap-2.5 max-w-md">
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input font-medium"
               required
             />
-            <button type="submit" disabled={saving} className="btn btn-primary shrink-0">
+            <button type="submit" disabled={saving || name.trim() === inventory.name} className="btn btn-primary shrink-0">
               {saving ? "Saving..." : "Save Name"}
             </button>
           </form>
@@ -226,11 +239,42 @@ export default function InventorySettingsClient({
           <p className="text-xs text-stone-500 mb-4">
             You will forfeit access to this store&apos;s records unless an owner invites you again.
           </p>
-          <button onClick={handleLeave} className="btn btn-danger">
+          <button onClick={() => setShowConfirmLeave(true)} className="btn btn-danger">
             Leave this Inventory
           </button>
         </section>
       )}
+
+      {/* ── Confirmation Modal: Rename Inventory ── */}
+      <ConfirmModal
+        open={showConfirmRename}
+        title={`Update store name to "${name}"?`}
+        description={
+          <span>
+            Are you sure you want to rename this store from{" "}
+            <strong>&quot;{inventory.name}&quot;</strong> to <strong>&quot;{name}&quot;</strong>? This will be visible to all collaborators and customer price list viewers.
+          </span>
+        }
+        confirmLabel="Update"
+        cancelLabel="Cancel"
+        variant="primary"
+        loading={saving}
+        onConfirm={confirmRename}
+        onCancel={() => setShowConfirmRename(false)}
+      />
+
+      {/* ── Confirmation Modal: Leave Inventory ── */}
+      <ConfirmModal
+        open={showConfirmLeave}
+        title={`Leave "${inventory.name}"?`}
+        description="Are you sure you want to leave this store inventory? You will forfeit access to its records and will need an invite code to rejoin."
+        confirmLabel="Leave Store"
+        cancelLabel="Cancel"
+        variant="danger"
+        loading={leaving}
+        onConfirm={confirmLeave}
+        onCancel={() => setShowConfirmLeave(false)}
+      />
     </div>
   );
 }

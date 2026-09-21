@@ -19,6 +19,13 @@ type Message = {
     selling_price?: number | null;
     quantity: number;
   }>;
+  confirmation?: {
+    type: string;
+    title: string;
+    description?: string;
+    confirmLabel: string;
+    command: string;
+  };
 };
 
 const SUGGESTIONS = [
@@ -139,6 +146,7 @@ export default function AICopilotDrawer({ inventoryId }: { inventoryId: string }
           text: data.reply || "Done!",
           actionTaken: data.actionTaken,
           items: data.items,
+          confirmation: data.confirmation,
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
@@ -307,6 +315,45 @@ export default function AICopilotDrawer({ inventoryId }: { inventoryId: string }
                           </span>
                         </div>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Render Confirmation Action Buttons if database change is pending */}
+                  {m.confirmation && (
+                    <div className="mt-3 pt-2.5 border-t border-stone-200/90 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleSend(m.confirmation!.command)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow-xs cursor-pointer transition-all hover:scale-105 active:scale-95 ${
+                          m.confirmation.confirmLabel === "Delete"
+                            ? "bg-red-600 hover:bg-red-700"
+                            : m.confirmation.confirmLabel === "Archive"
+                            ? "bg-amber-600 hover:bg-amber-700"
+                            : "bg-[#1a7949] hover:bg-[#145a37]"
+                        }`}
+                      >
+                        {m.confirmation.confirmLabel}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMessages((prev) => [
+                            ...prev,
+                            {
+                              id: (Date.now() + 2).toString(),
+                              sender: "ai",
+                              text: "Operation cancelled. No changes were made to your database.",
+                              time: new Date().toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }),
+                            },
+                          ]);
+                        }}
+                        className="px-3 py-1.5 rounded-xl text-xs font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
                     </div>
                   )}
                 </div>

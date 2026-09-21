@@ -5,6 +5,7 @@ import type { Category, Product } from "@/lib/types";
 import { formatPrice, capitalTiedUp } from "@/lib/types";
 import { deleteProduct, setProductArchived } from "@/app/(dashboard)/actions";
 import ProductForm from "./ProductForm";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export default function ProductsClient({
   inventoryId,
@@ -46,17 +47,34 @@ export default function ProductsClient({
     setFormOpen(true);
   }
 
-  async function handleDelete(p: Product) {
-    if (!confirm(`Permanently delete "${p.name}"? This cannot be undone.`)) return;
-    await deleteProduct(inventoryId, p.id);
+  // Confirmation dialog states
+  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<Product | null>(null);
+  const [pendingArchiveProduct, setPendingArchiveProduct] = useState<Product | null>(null);
+  const [pendingRestoreProduct, setPendingRestoreProduct] = useState<Product | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  async function confirmDelete() {
+    if (!pendingDeleteProduct) return;
+    setActionLoading(true);
+    await deleteProduct(inventoryId, pendingDeleteProduct.id);
+    setActionLoading(false);
+    setPendingDeleteProduct(null);
   }
 
-  async function handleArchive(p: Product) {
-    await setProductArchived(inventoryId, p.id, true);
+  async function confirmArchive() {
+    if (!pendingArchiveProduct) return;
+    setActionLoading(true);
+    await setProductArchived(inventoryId, pendingArchiveProduct.id, true);
+    setActionLoading(false);
+    setPendingArchiveProduct(null);
   }
 
-  async function handleRestore(p: Product) {
-    await setProductArchived(inventoryId, p.id, false);
+  async function confirmRestore() {
+    if (!pendingRestoreProduct) return;
+    setActionLoading(true);
+    await setProductArchived(inventoryId, pendingRestoreProduct.id, false);
+    setActionLoading(false);
+    setPendingRestoreProduct(null);
   }
 
   return (
@@ -277,7 +295,7 @@ export default function ProductsClient({
                             <span>Edit</span>
                           </button>
                           <button
-                            onClick={() => handleArchive(p)}
+                            onClick={() => setPendingArchiveProduct(p)}
                             className="inline-flex items-center gap-1 rounded-lg border border-stone-300/80 bg-stone-50 px-2.5 py-1 text-xs font-bold text-stone-600 shadow-2xs hover:bg-stone-100 hover:border-stone-400 hover:text-stone-800 transition-all cursor-pointer"
                             title="Archive product"
                           >
@@ -287,7 +305,7 @@ export default function ProductsClient({
                             <span>Archive</span>
                           </button>
                           <button
-                            onClick={() => handleDelete(p)}
+                            onClick={() => setPendingDeleteProduct(p)}
                             className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-bold text-[#782d2d] shadow-2xs hover:bg-red-100 hover:border-red-300 transition-all cursor-pointer"
                             title="Permanently delete product"
                           >
@@ -300,7 +318,7 @@ export default function ProductsClient({
                       ) : (
                         <div className="flex items-center justify-end gap-1.5">
                           <button
-                            onClick={() => handleRestore(p)}
+                            onClick={() => setPendingRestoreProduct(p)}
                             className="inline-flex items-center gap-1 rounded-lg border border-emerald-400 bg-emerald-100/80 px-2.5 py-1 text-xs font-bold text-[#0f4e2b] shadow-2xs hover:bg-emerald-200 transition-all cursor-pointer"
                           >
                             <svg className="w-3.5 h-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -309,7 +327,7 @@ export default function ProductsClient({
                             <span>Restore</span>
                           </button>
                           <button
-                            onClick={() => handleDelete(p)}
+                            onClick={() => setPendingDeleteProduct(p)}
                             className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-bold text-[#782d2d] shadow-2xs hover:bg-red-100 hover:border-red-300 transition-all cursor-pointer"
                             title="Permanently delete product"
                           >
@@ -373,6 +391,58 @@ export default function ProductsClient({
           onClose={() => setFormOpen(false)}
         />
       )}
+
+      {/* ── Confirmation Modal: Delete Product ── */}
+      <ConfirmModal
+        open={Boolean(pendingDeleteProduct)}
+        title={`Delete product "${pendingDeleteProduct?.name}"?`}
+        description={
+          <span>
+            Are you sure you want to permanently delete{" "}
+            <strong>&quot;{pendingDeleteProduct?.name}&quot;</strong> from your catalog? This will remove all associated stock and pricing data and cannot be undone.
+          </span>
+        }
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        loading={actionLoading}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDeleteProduct(null)}
+      />
+
+      {/* ── Confirmation Modal: Archive Product ── */}
+      <ConfirmModal
+        open={Boolean(pendingArchiveProduct)}
+        title={`Archive product "${pendingArchiveProduct?.name}"?`}
+        description={
+          <span>
+            This will hide <strong>&quot;{pendingArchiveProduct?.name}&quot;</strong> from active sales and your public customer price list. You can restore it anytime from the Archived tab.
+          </span>
+        }
+        confirmLabel="Archive"
+        cancelLabel="Cancel"
+        variant="warning"
+        loading={actionLoading}
+        onConfirm={confirmArchive}
+        onCancel={() => setPendingArchiveProduct(null)}
+      />
+
+      {/* ── Confirmation Modal: Restore Product ── */}
+      <ConfirmModal
+        open={Boolean(pendingRestoreProduct)}
+        title={`Restore product "${pendingRestoreProduct?.name}"?`}
+        description={
+          <span>
+            Restore <strong>&quot;{pendingRestoreProduct?.name}&quot;</strong> back to active store inventory and make it visible on the public price list?
+          </span>
+        }
+        confirmLabel="Restore"
+        cancelLabel="Cancel"
+        variant="primary"
+        loading={actionLoading}
+        onConfirm={confirmRestore}
+        onCancel={() => setPendingRestoreProduct(null)}
+      />
     </div>
   );
 }
